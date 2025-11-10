@@ -4,6 +4,7 @@ import com.easyjob.easyjobapi.utils.enums.UserTypeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import com.easyjob.easyjobapi.utils.validators.password.PasswordConstraint;
@@ -22,7 +23,7 @@ public record RegisterRequest(
         @Schema(description = "User password", example = "Mariusz!Pudzianowski69")
         String password,
 
-        @NotBlank
+        @NotNull
         @Schema(description = "User type", example = "RECRUITER")
         UserTypeEnum userType) {
 }

@@ -43,37 +43,38 @@ public class RegisterService {
 
     public void registerUser(RegisterRequest request) throws UserAlreadyExistException, IOException {
         log.info("Creating new app user: {}", request.email());
-        String trimmedEmail = request.email()
-                                     .strip()
-                                     .toLowerCase();
-        String trimmedPassword = request.password()
-                                        .strip();
+        String trimmedEmail = request.email().strip().toLowerCase();
+        String trimmedPassword = request.password().strip();
 
-        AuthAccountDAO authAccountDAO = authAccountManager.findByEmail(trimmedEmail)
-                                                          .orElse(null);
+        AuthAccountDAO authAccountDAO = authAccountManager.findByEmail(trimmedEmail).orElse(null);
         if (authAccountDAO != null && authAccountDAO.getIsActivated())
             throw new UserAlreadyExistException("User already exist!");
 
         if (authAccountDAO == null) {
-            AuthAccount authAccount = AuthAccountBuilders.buildAuthAccount(trimmedEmail,
-                                                                           passwordEncoder.encode(trimmedPassword),
-                                                                           AuthTypeEnum.EMAIL);
+            AuthAccount authAccount = AuthAccountBuilders.buildAuthAccount(
+                    trimmedEmail,
+                    passwordEncoder.encode(trimmedPassword),
+                    AuthTypeEnum.EMAIL
+            );
             authAccountDAO = authAccountMapper.mapToEntity(authAccount, new CycleAvoidingMappingContext());
             authAccountDAO.setIsActivated(false);
             authAccountDAO = authAccountManager.saveAuthAccountToDatabase(authAccountDAO);
 
+            // Create and save User
             User user = UserBuilders.buildUserFromEmail(request.email());
             UserDAO userDAO = userMapper.mapToEntity(user, new CycleAvoidingMappingContext());
             userDAO.setUserType(request.userType());
             userDAO.setIsArchived(true);
             userDAO = userManager.saveUserToDatabase(userDAO);
-            user = userMapper.mapToDomain(userDAO, new  CycleAvoidingMappingContext());
 
-            ApplierProfile applierProfile = ApplierProfileBuilders.buildFromUser(user);
-            ApplierProfileDAO applierProfileDAO =  applierProfileMapper.mapToEntity(applierProfile, new CycleAvoidingMappingContext());
-            applierProfileDAO.setIsArchived(true);
+            // Create ApplierProfile using the MANAGED UserDAO entity directly
+            ApplierProfileDAO applierProfileDAO = ApplierProfileDAO.builder()
+                    .user(userDAO)  // ← Use the managed entity directly
+                    .isArchived(true)
+                    .build();
             applierProfileManager.saveToDatabase(applierProfileDAO);
 
+            // Update authAccount with userId
             authAccountDAO.setUserId(userDAO.getId());
             authAccountDAO = authAccountManager.saveAuthAccountToDatabase(authAccountDAO);
         }

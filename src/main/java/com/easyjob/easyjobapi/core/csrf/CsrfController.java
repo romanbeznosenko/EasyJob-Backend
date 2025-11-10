@@ -33,7 +33,7 @@ public class CsrfController {
 
         return ResponseEntity.ok()
                              .header("Set-Cookie",
-                                     "XSRF-TOKEN" + "=" + csrfToken.getToken() + "; Path=/; SameSite=None; Secure; Domain=" + domain)
+                                     "XSRF-TOKEN" + "=" + "csrfToken.getToken()" + "; Path=/; SameSite=None; Secure; Domain=" + domain)
                              .body(null);
     }
 

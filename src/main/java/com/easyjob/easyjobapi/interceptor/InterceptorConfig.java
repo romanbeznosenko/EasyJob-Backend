@@ -9,11 +9,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class InterceptorConfig implements WebMvcConfigurer {
     private final UserInterceptor userInterceptor;
+    private final UserDetailsInterceptor userDetailsInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         //Load UserDAO
         registry.addInterceptor(userInterceptor)
                 .addPathPatterns("/api/**");
+
+        registry.addInterceptor(userDetailsInterceptor)
+                .addPathPatterns("/api/**")
+                .addPathPatterns("/internal/**");
     }
 }

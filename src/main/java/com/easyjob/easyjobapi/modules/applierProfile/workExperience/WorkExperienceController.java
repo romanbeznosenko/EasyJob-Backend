@@ -28,7 +28,7 @@ public class WorkExperienceController {
             description = "Add work experience to applier profile",
             summary = "Add work experience to applier profile"
     )
-    @PreAuthorize("hasAuthority('ROLE_APPLIER')")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<CustomResponse<Void>> addWorkExperience(
             @Valid @RequestBody WorkExperienceRequest request
     ){
@@ -43,7 +43,7 @@ public class WorkExperienceController {
             description = "Get applier work experience",
             summary = "Get applier work experience"
     )
-    @PreAuthorize("hasAuthority('ROLE_APPLIER')")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<CustomResponse<WorkExperiencePageResponse>> getWorkExperience(
             @RequestParam(name = "limit", required = false, defaultValue = "10") int limit,
             @RequestParam(name = "page", required = false, defaultValue = "1") int page

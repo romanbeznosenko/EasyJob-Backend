@@ -4,7 +4,6 @@ import com.easyjob.easyjobapi.core.user.models.UserDAO;
 import com.easyjob.easyjobapi.utils.enums.UserTypeEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.usertype.UserType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
