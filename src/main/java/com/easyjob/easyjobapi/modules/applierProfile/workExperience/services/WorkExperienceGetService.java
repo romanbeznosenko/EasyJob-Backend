@@ -36,6 +36,7 @@ public class WorkExperienceGetService {
         Pageable pageable = PageRequest.of(page - 1, limit);
         Page<WorkExperienceDAO> workExperienceDAOPage = workExperienceManager.findByApplierProfile(applierProfileDAO.getId(), pageable);
         List<WorkExperienceResponse> workExperienceResponseList = workExperienceDAOPage.get()
+                .filter(item -> item.getIsArchived() == false)
                 .map(workExperienceDAO -> WorkExperienceResponse.builder()
                         .workExperienceId(workExperienceDAO.getId())
                         .applierProfileId(workExperienceDAO.getApplierProfile().getId())

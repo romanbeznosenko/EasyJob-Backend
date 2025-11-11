@@ -2,8 +2,9 @@ package com.easyjob.easyjobapi.modules.applierProfile.workExperience;
 
 import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperiencePageResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperienceRequest;
-import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperienceResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.workExperience.services.WorkExperienceCreateService;
+import com.easyjob.easyjobapi.modules.applierProfile.workExperience.services.WorkExperienceDeleteService;
+import com.easyjob.easyjobapi.modules.applierProfile.workExperience.services.WorkExperienceEditService;
 import com.easyjob.easyjobapi.modules.applierProfile.workExperience.services.WorkExperienceGetService;
 import com.easyjob.easyjobapi.utils.CustomResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,12 +15,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/user/applier-profile/work-experience")
 @RequiredArgsConstructor
 public class WorkExperienceController {
     private final WorkExperienceCreateService workExperienceCreateService;
     private final WorkExperienceGetService workExperienceGetService;
+    private final WorkExperienceDeleteService workExperienceDeleteService;
+    private final WorkExperienceEditService workExperienceEditService;
 
     private final static String DEFAULT_RESPONSE = "Operation successful.";
 
@@ -51,6 +56,37 @@ public class WorkExperienceController {
         WorkExperiencePageResponse response = workExperienceGetService.getWorkExperiencePage(limit, page);
 
         return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK),
+                HttpStatus.OK);
+    }
+
+    @PutMapping(value = "/{work-experience-id}")
+    @Operation(
+            description = "Edit applier work experience",
+            summary = "Edit applier work experience"
+    )
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<CustomResponse<Void>> editWorkExperience(
+            @Valid @RequestBody WorkExperienceRequest request,
+            @PathVariable("work-experience-id") UUID workExperienceId
+    ) {
+        workExperienceEditService.edit(request, workExperienceId);
+
+        return new ResponseEntity<>(new CustomResponse<>(null, DEFAULT_RESPONSE, HttpStatus.OK),
+                HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/{work-experience-id}")
+    @Operation(
+            description = "Delete applier work experience",
+            summary = "Delete applier work experience"
+    )
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<CustomResponse<Void>> deleteWorkExperience(
+            @PathVariable("work-experience-id") UUID workExperienceId
+    ) {
+        workExperienceDeleteService.delete(workExperienceId);
+
+        return new ResponseEntity<>(new CustomResponse<>(null, DEFAULT_RESPONSE, HttpStatus.OK),
                 HttpStatus.OK);
     }
 }

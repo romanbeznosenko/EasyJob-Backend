@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -20,5 +21,9 @@ public class WorkExperienceManager {
 
     public Page<WorkExperienceDAO> findByApplierProfile(UUID applierProfileId, Pageable pageable) {
         return workExperienceRepository.findByApplierProfile_Id(applierProfileId, pageable);
+    }
+
+    public Optional<WorkExperienceDAO> findByWorkExperienceId(UUID workExperienceId) {
+        return workExperienceRepository.findById(workExperienceId);
     }
 }
