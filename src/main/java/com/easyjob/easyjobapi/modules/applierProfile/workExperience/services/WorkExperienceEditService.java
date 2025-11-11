@@ -23,8 +23,6 @@ public class WorkExperienceEditService {
     public void edit(WorkExperienceRequest workExperienceRequest, UUID workExperienceId) throws WorkExperienceNotFoundException, WorkExperienceUserMismatchException {
         log.info("WorkExperience Request");
 
-        log.info("Deleting workExperience with id: " + workExperienceId);
-
         UserDAO user = (UserDAO) request.getAttribute("user");
         WorkExperienceDAO workExperienceDAO = workExperienceManager.findByWorkExperienceId(workExperienceId)
                 .orElseThrow(WorkExperienceNotFoundException::new);
