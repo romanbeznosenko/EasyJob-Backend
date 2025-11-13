@@ -4,6 +4,7 @@ import com.easyjob.easyjobapi.core.user.management.UserMapper;
 import com.easyjob.easyjobapi.core.user.models.UserDAO;
 import com.easyjob.easyjobapi.core.user.models.UserResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.education.management.EducationManager;
+import com.easyjob.easyjobapi.modules.applierProfile.education.management.EducationMapper;
 import com.easyjob.easyjobapi.modules.applierProfile.education.models.EducationDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.education.models.EducationResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileManager;
@@ -11,13 +12,15 @@ import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileNo
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.project.management.ProjectManager;
+import com.easyjob.easyjobapi.modules.applierProfile.project.management.ProjectMapper;
 import com.easyjob.easyjobapi.modules.applierProfile.project.models.ProjectDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.project.models.ProjectResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.skill.management.SkillManager;
+import com.easyjob.easyjobapi.modules.applierProfile.skill.management.SkillMapper;
 import com.easyjob.easyjobapi.modules.applierProfile.skill.models.SkillDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.skill.models.SkillResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.workExperience.management.WorkExperienceManager;
-import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperience;
+import com.easyjob.easyjobapi.modules.applierProfile.workExperience.management.WorkExperienceMapper;
 import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperienceDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperienceResponse;
 import com.easyjob.easyjobapi.utils.CycleAvoidingMappingContext;
@@ -37,9 +40,13 @@ public class ApplierProfileGetService {
     private final HttpServletRequest request;
     private final ApplierProfileManager applierProfileManager;
     private final EducationManager educationManager;
+    private final EducationMapper educationMapper;
     private final ProjectManager projectManager;
+    private final ProjectMapper projectMapper;
     private final SkillManager skillManager;
+    private final SkillMapper skillMapper;
     private final WorkExperienceManager workExperienceManager;
+    private final WorkExperienceMapper workExperienceMapper;
     private final UserMapper userMapper;
 
     public ApplierProfileResponse get() {
@@ -57,52 +64,22 @@ public class ApplierProfileGetService {
 
         List<EducationResponse> educationResponses = educationPage.get()
                 .filter(item -> item.getIsArchived() == false)
-                .map(item -> EducationResponse.builder()
-                        .educationId(item.getId())
-                        .applierProfileId(item.getApplierProfile().getId())
-                        .degree(item.getDegree())
-                        .university(item.getUniversity())
-                        .startDate(item.getStartDate())
-                        .endDate(item.getEndDate())
-                        .major(item.getMajor())
-                        .gpa(item.getGpa())
-                        .build())
+                .map(item -> educationMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
                 .toList();
 
         List<ProjectResponse> projectResponses = projectPage.get()
                 .filter(item -> item.getIsArchived() == false)
-                .map(item -> ProjectResponse.builder()
-                        .projectId(item.getId())
-                        .applierProfileId(item.getApplierProfile().getId())
-                        .name(item.getName())
-                        .description(item.getDescription())
-                        .technologies(item.getTechnologies())
-                        .ling(item.getLink())
-                        .build())
+                .map(item -> projectMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
                 .toList();
 
         List<SkillResponse> skillResponses = skillPage.get()
                 .filter(item -> item.getIsArchived() == false)
-                .map(item -> SkillResponse.builder()
-                        .skillId(item.getId())
-                        .applierProfileId(item.getApplierProfile().getId())
-                        .name(item.getName())
-                        .level(item.getLevel())
-                        .build())
+                .map(item -> skillMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
                 .toList();
 
         List<WorkExperienceResponse> workExperienceResponses = workExperiencePage.get()
                 .filter(item -> item.getIsArchived() == false)
-                .map(workExperienceDAO -> WorkExperienceResponse.builder()
-                        .workExperienceId(workExperienceDAO.getId())
-                        .applierProfileId(workExperienceDAO.getApplierProfile().getId())
-                        .title(workExperienceDAO.getTitle())
-                        .companyName(workExperienceDAO.getCompanyName())
-                        .startDate(workExperienceDAO.getStartDate())
-                        .endDate(workExperienceDAO.getEndDate())
-                        .responsibilities(workExperienceDAO.getResponsibilities())
-                        .location(workExperienceDAO.getLocation())
-                        .build())
+                .map(item -> workExperienceMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
                 .toList();
 
         UserResponse userResponse = userMapper.mapToResponseFromEntity(userDAO, new CycleAvoidingMappingContext());
