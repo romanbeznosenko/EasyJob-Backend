@@ -3,12 +3,14 @@ package com.easyjob.easyjobapi.modules.applierProfile;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.services.ApplierProfileGetService;
 import com.easyjob.easyjobapi.utils.CustomResponse;
+import com.easyjob.easyjobapi.utils.claude.ClaudeAIService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ApplierProfileController {
     private final ApplierProfileGetService applierProfileGetService;
+    private final ClaudeAIService claudeAIService;
 
     private final static String DEFAULT_RESPONSE = "Operation successful!";
 
@@ -29,6 +32,17 @@ public class ApplierProfileController {
     public ResponseEntity<CustomResponse<ApplierProfileResponse>> get(){
         ApplierProfileResponse response = applierProfileGetService.get();
 
+        return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/cv")
+    @Operation(
+            description = "Create CV based on applier profile",
+            summary = "Create CV based on applier profile"
+    )
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<CustomResponse<String>> createCV(){
+        String response = claudeAIService.test();
         return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
     }
 }
