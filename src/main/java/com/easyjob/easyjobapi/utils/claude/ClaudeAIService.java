@@ -5,7 +5,6 @@ import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import com.anthropic.models.messages.MessageCreateParams;
 import com.anthropic.models.messages.Model;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileCVResponse;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -77,66 +76,6 @@ public class ClaudeAIService {
             Data:
             """;
 
-    public String test() {
-        log.info("Claude AI Service test");
-        AnthropicClient client = AnthropicOkHttpClient.builder()
-                .apiKey(ANTHROPIC_API_KEY)
-                .build();
-
-        MessageCreateParams createParams = MessageCreateParams.builder()
-                .model(Model.CLAUDE_SONNET_4_20250514)
-                .maxTokens(2048)
-                .addUserMessage("Tell me a story about building the best SDK!")
-                .build();
-
-        StringBuilder responseBuilder = new StringBuilder();
-
-        client.messages().create(createParams).content().stream()
-                .flatMap(contentBlock -> contentBlock.text().stream())
-                .forEach(textBlock -> responseBuilder.append(textBlock.text()));
-
-        return responseBuilder.toString();
-    }
-
-    public String test2(String applierProfile) {
-        log.info("Claude AI Service test2");
-        AnthropicClient client = AnthropicOkHttpClient.builder()
-                .apiKey(ANTHROPIC_API_KEY)
-                .build();
-
-        MessageCreateParams createParams = MessageCreateParams.builder()
-                .model(Model.CLAUDE_SONNET_4_20250514)
-                .maxTokens(2048)
-                .addUserMessage(PROMPT + applierProfile)
-                .build();
-
-        StringBuilder responseBuilder = new StringBuilder();
-
-        client.messages().create(createParams).content().stream()
-                .flatMap(contentBlock -> contentBlock.text().stream())
-                .forEach(textBlock -> responseBuilder.append(textBlock.text()));
-
-        String responseString = responseBuilder.toString();
-
-        // Remove code block markers and extra text
-        responseString = responseString.replace("```", "")
-                .replace("json", "")
-                .trim();
-
-        try {
-            // Parse and pretty-print JSON
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode jsonNode = mapper.readTree(responseString);
-            responseString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode);
-        } catch (Exception e) {
-            log.error("Failed to parse JSON from Claude AI response", e);
-            // fallback: return cleaned string without slashes
-            responseString = responseString.replace("\\", "").replace("/", "");
-        }
-
-        return responseString;
-    }
-
     public ApplierProfileCVResponse getApplierProfileCV(String applierProfile) {
         log.info("Claude AI Service generating ApplierProfileCVResponse");
         AnthropicClient client = AnthropicOkHttpClient.builder()
@@ -161,11 +100,10 @@ public class ClaudeAIService {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
-            // Deserialize JSON into your record
             return mapper.readValue(responseString, ApplierProfileCVResponse.class);
         } catch (Exception e) {
             log.error("Failed to parse JSON into ApplierProfileCVResponse", e);
-            return null; // or throw a custom exception
+            return null;
         }
     }
 }
