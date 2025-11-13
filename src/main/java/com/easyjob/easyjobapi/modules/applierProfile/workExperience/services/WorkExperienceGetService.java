@@ -5,9 +5,11 @@ import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileMa
 import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileNotFoundException;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.workExperience.management.WorkExperienceManager;
+import com.easyjob.easyjobapi.modules.applierProfile.workExperience.management.WorkExperienceMapper;
 import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperienceDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperiencePageResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperienceResponse;
+import com.easyjob.easyjobapi.utils.CycleAvoidingMappingContext;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ public class WorkExperienceGetService {
     private final HttpServletRequest request;
     private final ApplierProfileManager applierProfileManager;
     private final WorkExperienceManager workExperienceManager;
+    private final WorkExperienceMapper workExperienceMapper;
 
     public WorkExperiencePageResponse getWorkExperiencePage(int limit, int page) {
         log.info("WorkExperienceGetService getWorkExperiencePage");
@@ -37,16 +40,7 @@ public class WorkExperienceGetService {
         Page<WorkExperienceDAO> workExperienceDAOPage = workExperienceManager.findByApplierProfile(applierProfileDAO.getId(), pageable);
         List<WorkExperienceResponse> workExperienceResponseList = workExperienceDAOPage.get()
                 .filter(item -> item.getIsArchived() == false)
-                .map(workExperienceDAO -> WorkExperienceResponse.builder()
-                        .workExperienceId(workExperienceDAO.getId())
-                        .applierProfileId(workExperienceDAO.getApplierProfile().getId())
-                        .title(workExperienceDAO.getTitle())
-                        .companyName(workExperienceDAO.getCompanyName())
-                        .startDate(workExperienceDAO.getStartDate())
-                        .endDate(workExperienceDAO.getEndDate())
-                        .responsibilities(workExperienceDAO.getResponsibilities())
-                        .location(workExperienceDAO.getLocation())
-                        .build())
+                .map(item -> workExperienceMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
                 .toList();
 
         return WorkExperiencePageResponse.builder()

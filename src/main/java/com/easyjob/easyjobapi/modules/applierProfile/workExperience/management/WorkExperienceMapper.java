@@ -4,6 +4,7 @@ import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileMa
 import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperience;
 import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperienceDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperienceId;
+import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperienceResponse;
 import com.easyjob.easyjobapi.utils.CycleAvoidingMappingContext;
 import org.mapstruct.*;
 
@@ -16,6 +17,11 @@ public interface WorkExperienceMapper {
     @Mapping(target = "workExperienceId", source = "toMap", qualifiedByName = "longToObject")
     WorkExperience mapToDomain(WorkExperienceDAO toMap,
                                @Context CycleAvoidingMappingContext cycleAvoidingMappingContext);
+
+    @Mapping(target = "workExperienceId", source = "id")
+    @Mapping(target = "applierProfileId", source = "applierProfile.id")
+    WorkExperienceResponse mapToResponse(WorkExperienceDAO workExperienceDAO,
+                                         @Context CycleAvoidingMappingContext cycleAvoidingMappingContext);
 
     @Named("longToObject")
     default WorkExperienceId fromLongToObject(WorkExperienceDAO workExperienceDAO) {
