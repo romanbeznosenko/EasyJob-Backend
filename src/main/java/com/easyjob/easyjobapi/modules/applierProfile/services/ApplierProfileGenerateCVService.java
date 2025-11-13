@@ -109,7 +109,7 @@ public class ApplierProfileGenerateCVService {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         outputStream.write(CVFile, 0, CVFile.length);
 
-        String storageKey = "%s/logo/%s.pdf".formatted(userDAO.getId(), UUID.randomUUID());
+        String storageKey = "%s/cv/%s.pdf".formatted(userDAO.getId(), UUID.randomUUID());
         storageService.uploadFile(storageKey, "application/pdf", outputStream);
 
         return storageService.createPresignedGetUrl(storageKey);
