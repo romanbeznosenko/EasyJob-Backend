@@ -4,6 +4,7 @@ import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import com.anthropic.models.messages.MessageCreateParams;
 import com.anthropic.models.messages.Model;
+import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileCVResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -134,5 +135,37 @@ public class ClaudeAIService {
         }
 
         return responseString;
+    }
+
+    public ApplierProfileCVResponse getApplierProfileCV(String applierProfile) {
+        log.info("Claude AI Service generating ApplierProfileCVResponse");
+        AnthropicClient client = AnthropicOkHttpClient.builder()
+                .apiKey(ANTHROPIC_API_KEY)
+                .build();
+
+        MessageCreateParams createParams = MessageCreateParams.builder()
+                .model(Model.CLAUDE_SONNET_4_20250514)
+                .maxTokens(2048)
+                .addUserMessage(PROMPT + applierProfile)
+                .build();
+
+        StringBuilder responseBuilder = new StringBuilder();
+        client.messages().create(createParams).content().stream()
+                .flatMap(contentBlock -> contentBlock.text().stream())
+                .forEach(textBlock -> responseBuilder.append(textBlock.text()));
+
+        String responseString = responseBuilder.toString()
+                .replace("```", "")
+                .replace("json", "")
+                .trim();
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            // Deserialize JSON into your record
+            return mapper.readValue(responseString, ApplierProfileCVResponse.class);
+        } catch (Exception e) {
+            log.error("Failed to parse JSON into ApplierProfileCVResponse", e);
+            return null; // or throw a custom exception
+        }
     }
 }

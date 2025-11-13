@@ -9,6 +9,7 @@ import com.easyjob.easyjobapi.modules.applierProfile.education.models.EducationD
 import com.easyjob.easyjobapi.modules.applierProfile.education.models.EducationResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileManager;
 import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileNotFoundException;
+import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileCVResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.project.management.ProjectManager;
@@ -51,7 +52,7 @@ public class ApplierProfileGenerateCVService {
     private final UserMapper userMapper;
     private final ClaudeAIService claudeAIService;
 
-    public String generate(){
+    public ApplierProfileCVResponse generate(){
         log.info("Generating CV based on applier profile");
 
         UserDAO userDAO = (UserDAO) request.getAttribute("user");
@@ -95,6 +96,6 @@ public class ApplierProfileGenerateCVService {
                 .workExperience(workExperienceResponses)
                 .build();
         String applierProfileString = ApplierProfileResponseMapper.mapToString(applierProfileResponse);
-        return claudeAIService.test2(applierProfileString);
+        return claudeAIService.getApplierProfileCV(applierProfileString);
     }
 }

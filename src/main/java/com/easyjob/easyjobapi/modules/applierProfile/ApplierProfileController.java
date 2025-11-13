@@ -1,5 +1,6 @@
 package com.easyjob.easyjobapi.modules.applierProfile;
 
+import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileCVResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.services.ApplierProfileGenerateCVService;
 import com.easyjob.easyjobapi.modules.applierProfile.services.ApplierProfileGetService;
@@ -41,8 +42,8 @@ public class ApplierProfileController {
             summary = "Create CV based on applier profile"
     )
     @PreAuthorize("permitAll()")
-    public ResponseEntity<CustomResponse<String>> createCV(){
-        String response = applierProfileGenerateCVService.generate();
+    public ResponseEntity<CustomResponse<ApplierProfileCVResponse>> createCV(){
+        ApplierProfileCVResponse response = applierProfileGenerateCVService.generate();
         return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
     }
 }
