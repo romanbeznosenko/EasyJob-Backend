@@ -4,6 +4,7 @@ import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileMa
 import com.easyjob.easyjobapi.modules.applierProfile.skill.models.Skill;
 import com.easyjob.easyjobapi.modules.applierProfile.skill.models.SkillDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.skill.models.SkillId;
+import com.easyjob.easyjobapi.modules.applierProfile.skill.models.SkillResponse;
 import com.easyjob.easyjobapi.utils.CycleAvoidingMappingContext;
 import org.mapstruct.*;
 
@@ -16,6 +17,11 @@ public interface SkillMapper {
     @Mapping(target = "skillId", source = "toMap", qualifiedByName = "longToObject")
     Skill mapToDomain(SkillDAO toMap,
                       @Context CycleAvoidingMappingContext cycleAvoidingMappingContext);
+
+    @Mapping(target = "skillId", source = "id")
+    @Mapping(target = "applierProfileId", source = "applierProfile.id")
+    SkillResponse mapToResponse(SkillDAO skillDAO,
+                                @Context CycleAvoidingMappingContext cycleAvoidingMappingContext);
 
     @Named("longToObject")
     default SkillId fromLongToObject(SkillDAO skillDAO) {

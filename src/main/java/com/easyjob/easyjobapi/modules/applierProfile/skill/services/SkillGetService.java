@@ -5,9 +5,11 @@ import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileMa
 import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileNotFoundException;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.skill.management.SkillManager;
+import com.easyjob.easyjobapi.modules.applierProfile.skill.management.SkillMapper;
 import com.easyjob.easyjobapi.modules.applierProfile.skill.models.SkillDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.skill.models.SkillPageResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.skill.models.SkillResponse;
+import com.easyjob.easyjobapi.utils.CycleAvoidingMappingContext;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ import java.util.List;
 public class SkillGetService {
     private final HttpServletRequest request;
     private final SkillManager skillManager;
+    private final SkillMapper skillMapper;
     private final ApplierProfileManager applierProfileManager;
 
     public SkillPageResponse get(int page, int limit){
@@ -38,12 +41,7 @@ public class SkillGetService {
 
         List<SkillResponse> skillResponses = skillDAOPage.get()
                 .filter(item -> item.getIsArchived() == false)
-                .map(item -> SkillResponse.builder()
-                        .skillId(item.getId())
-                        .applierProfileId(item.getApplierProfile().getId())
-                        .name(item.getName())
-                        .level(item.getLevel())
-                        .build())
+                .map(item -> skillMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
                 .toList();
 
         return SkillPageResponse.builder()
