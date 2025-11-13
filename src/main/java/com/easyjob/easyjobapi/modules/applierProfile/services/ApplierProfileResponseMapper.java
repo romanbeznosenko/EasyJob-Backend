@@ -1,9 +1,12 @@
 package com.easyjob.easyjobapi.modules.applierProfile.services;
 
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileResponse;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.stream.Collectors;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApplierProfileResponseMapper {
     public static String mapToString(ApplierProfileResponse response) {
         if (response == null) {
@@ -30,8 +33,11 @@ public class ApplierProfileResponseMapper {
                         item.title(), item.companyName(), item.startDate(), item.endDate() == null ? "To present" : item.endDate(), item.responsibilities(), item.location()))
                 .collect(Collectors.joining(", "));
 
+        String userFullName = response.user().name() + " " + response.user().surname();
+        String userStr = String.format("[name=%s, email=%s]", userFullName, response.user().email());
+
         return String.format("ApplierProfileResponse{user=%s, education=[%s], projects=[%s], skills=[%s], workExperience=[%s]}",
-                response.user() != null ? response.user().name() + " " + response.user().surname() : "null",
+                userStr,
                 educationStr,
                 projectStr,
                 skillStr,
