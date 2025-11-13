@@ -11,6 +11,6 @@ public record ProjectResponse(
         String name,
         String description,
         String technologies,
-        String ling
+        String link
 ) {
 }

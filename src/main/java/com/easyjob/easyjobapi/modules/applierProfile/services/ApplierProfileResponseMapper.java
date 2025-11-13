@@ -20,7 +20,7 @@ public class ApplierProfileResponseMapper {
 
         String projectStr = response.project().stream()
                 .map(item -> String.format("[name=%s, description=%s, technologies=%s, link=%s]",
-                        item.name(), item.description(), item.technologies(), item.ling()))
+                        item.name(), item.description(), item.technologies(), item.link()))
                 .collect(Collectors.joining(", "));
 
         String skillStr = response.skill().stream()
