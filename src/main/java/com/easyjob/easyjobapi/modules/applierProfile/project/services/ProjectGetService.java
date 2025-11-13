@@ -5,9 +5,11 @@ import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileMa
 import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileNotFoundException;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.project.management.ProjectManager;
+import com.easyjob.easyjobapi.modules.applierProfile.project.management.ProjectMapper;
 import com.easyjob.easyjobapi.modules.applierProfile.project.models.ProjectDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.project.models.ProjectPageResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.project.models.ProjectResponse;
+import com.easyjob.easyjobapi.utils.CycleAvoidingMappingContext;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ import java.util.List;
 public class ProjectGetService {
     private final HttpServletRequest request;
     private final ProjectManager projectManager;
+    private final ProjectMapper projectMapper;
     private final ApplierProfileManager applierProfileManager;
 
     public ProjectPageResponse get(int limit, int page){
@@ -37,14 +40,7 @@ public class ProjectGetService {
         Page<ProjectDAO>  projectPage = projectManager.findByApplierProfile_Id(applierProfileDAO.getId(), pageable);
         List<ProjectResponse> projectResponses = projectPage.get()
                 .filter(item -> item.getIsArchived() == false)
-                .map(item -> ProjectResponse.builder()
-                        .projectId(item.getId())
-                        .applierProfileId(item.getApplierProfile().getId())
-                        .name(item.getName())
-                        .description(item.getDescription())
-                        .technologies(item.getTechnologies())
-                        .ling(item.getLink())
-                        .build())
+                .map(item -> projectMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
                 .toList();
 
         return ProjectPageResponse.builder()
