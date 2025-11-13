@@ -1,9 +1,9 @@
 package com.easyjob.easyjobapi.modules.applierProfile;
 
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileResponse;
+import com.easyjob.easyjobapi.modules.applierProfile.services.ApplierProfileGenerateCVService;
 import com.easyjob.easyjobapi.modules.applierProfile.services.ApplierProfileGetService;
 import com.easyjob.easyjobapi.utils.CustomResponse;
-import com.easyjob.easyjobapi.utils.claude.ClaudeAIService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ApplierProfileController {
     private final ApplierProfileGetService applierProfileGetService;
-    private final ClaudeAIService claudeAIService;
+    private final ApplierProfileGenerateCVService applierProfileGenerateCVService;
 
     private final static String DEFAULT_RESPONSE = "Operation successful!";
 
@@ -42,7 +42,7 @@ public class ApplierProfileController {
     )
     @PreAuthorize("permitAll()")
     public ResponseEntity<CustomResponse<String>> createCV(){
-        String response = claudeAIService.test();
+        String response = applierProfileGenerateCVService.generate();
         return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
     }
 }

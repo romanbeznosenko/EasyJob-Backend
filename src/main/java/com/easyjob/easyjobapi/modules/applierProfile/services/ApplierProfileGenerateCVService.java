@@ -1,0 +1,100 @@
+package com.easyjob.easyjobapi.modules.applierProfile.services;
+
+import com.easyjob.easyjobapi.core.user.management.UserMapper;
+import com.easyjob.easyjobapi.core.user.models.UserDAO;
+import com.easyjob.easyjobapi.core.user.models.UserResponse;
+import com.easyjob.easyjobapi.modules.applierProfile.education.management.EducationManager;
+import com.easyjob.easyjobapi.modules.applierProfile.education.management.EducationMapper;
+import com.easyjob.easyjobapi.modules.applierProfile.education.models.EducationDAO;
+import com.easyjob.easyjobapi.modules.applierProfile.education.models.EducationResponse;
+import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileManager;
+import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileNotFoundException;
+import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileDAO;
+import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileResponse;
+import com.easyjob.easyjobapi.modules.applierProfile.project.management.ProjectManager;
+import com.easyjob.easyjobapi.modules.applierProfile.project.management.ProjectMapper;
+import com.easyjob.easyjobapi.modules.applierProfile.project.models.ProjectDAO;
+import com.easyjob.easyjobapi.modules.applierProfile.project.models.ProjectResponse;
+import com.easyjob.easyjobapi.modules.applierProfile.skill.management.SkillManager;
+import com.easyjob.easyjobapi.modules.applierProfile.skill.management.SkillMapper;
+import com.easyjob.easyjobapi.modules.applierProfile.skill.models.SkillDAO;
+import com.easyjob.easyjobapi.modules.applierProfile.skill.models.SkillResponse;
+import com.easyjob.easyjobapi.modules.applierProfile.workExperience.management.WorkExperienceManager;
+import com.easyjob.easyjobapi.modules.applierProfile.workExperience.management.WorkExperienceMapper;
+import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperienceDAO;
+import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperienceResponse;
+import com.easyjob.easyjobapi.utils.CycleAvoidingMappingContext;
+import com.easyjob.easyjobapi.utils.claude.ClaudeAIService;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@RequiredArgsConstructor
+@Slf4j
+@Service
+public class ApplierProfileGenerateCVService {
+    private final HttpServletRequest request;
+    private final ApplierProfileManager applierProfileManager;
+    private final EducationManager educationManager;
+    private final EducationMapper educationMapper;
+    private final ProjectManager projectManager;
+    private final ProjectMapper projectMapper;
+    private final SkillManager skillManager;
+    private final SkillMapper skillMapper;
+    private final WorkExperienceManager workExperienceManager;
+    private final WorkExperienceMapper workExperienceMapper;
+    private final UserMapper userMapper;
+    private final ClaudeAIService claudeAIService;
+
+    public String generate(){
+        log.info("Generating CV based on applier profile");
+
+        UserDAO userDAO = (UserDAO) request.getAttribute("user");
+        ApplierProfileDAO applierProfileDAO = applierProfileManager.findByUser(userDAO.getId())
+                .orElseThrow(ApplierProfileNotFoundException::new);
+
+        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
+        Page<EducationDAO> educationPage = educationManager.findByApplierProfile_Id(applierProfileDAO.getId(), pageable);
+        Page<ProjectDAO> projectPage = projectManager.findByApplierProfile_Id(applierProfileDAO.getId(), pageable);
+        Page<SkillDAO> skillPage = skillManager.findByApplierProfile_Id(applierProfileDAO.getId(), pageable);
+        Page<WorkExperienceDAO> workExperiencePage = workExperienceManager.findByApplierProfile(applierProfileDAO.getId(), pageable);
+
+        List<EducationResponse> educationResponses = educationPage.get()
+                .filter(item -> item.getIsArchived() == false)
+                .map(item -> educationMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
+                .toList();
+
+        List<ProjectResponse> projectResponses = projectPage.get()
+                .filter(item -> item.getIsArchived() == false)
+                .map(item -> projectMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
+                .toList();
+
+        List<SkillResponse> skillResponses = skillPage.get()
+                .filter(item -> item.getIsArchived() == false)
+                .map(item -> skillMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
+                .toList();
+
+        List<WorkExperienceResponse> workExperienceResponses = workExperiencePage.get()
+                .filter(item -> item.getIsArchived() == false)
+                .map(item -> workExperienceMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
+                .toList();
+
+        UserResponse userResponse = userMapper.mapToResponseFromEntity(userDAO, new CycleAvoidingMappingContext());
+
+        ApplierProfileResponse applierProfileResponse = ApplierProfileResponse.builder()
+                .applierProfileId(applierProfileDAO.getId())
+                .user(userResponse)
+                .education(educationResponses)
+                .project(projectResponses)
+                .skill(skillResponses)
+                .workExperience(workExperienceResponses)
+                .build();
+        String applierProfileString = ApplierProfileResponseMapper.mapToString(applierProfileResponse);
+        return claudeAIService.test2(applierProfileString);
+    }
+}
