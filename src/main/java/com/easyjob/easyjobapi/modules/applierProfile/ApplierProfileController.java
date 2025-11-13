@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/user/applier-profile")
 @RequiredArgsConstructor
@@ -42,8 +44,8 @@ public class ApplierProfileController {
             summary = "Create CV based on applier profile"
     )
     @PreAuthorize("permitAll()")
-    public ResponseEntity<CustomResponse<ApplierProfileCVResponse>> createCV(){
-        ApplierProfileCVResponse response = applierProfileGenerateCVService.generate();
+    public ResponseEntity<CustomResponse<String>> createCV() throws IOException {
+        String response = applierProfileGenerateCVService.generate();
         return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
     }
 }

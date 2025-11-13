@@ -18,6 +18,8 @@ services:
   psql:
     restart: unless-stopped
     image: postgres:17.4-alpine3.21
+    env_file:
+      - .env
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?err}
       - POSTGRES_USER=${POSTGRES_USER:?err}

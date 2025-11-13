@@ -1,10 +1,10 @@
 package com.easyjob.easyjobapi.modules.applierProfile.models;
 
 import com.easyjob.easyjobapi.core.user.models.UserResponse;
-import com.easyjob.easyjobapi.modules.applierProfile.education.models.EducationResponse;
-import com.easyjob.easyjobapi.modules.applierProfile.project.models.ProjectResponse;
-import com.easyjob.easyjobapi.modules.applierProfile.skill.models.SkillResponse;
-import com.easyjob.easyjobapi.modules.applierProfile.workExperience.models.WorkExperienceResponse;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.models.EducationResponse;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.project.models.ProjectResponse;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.skill.models.SkillResponse;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.workExperience.models.WorkExperienceResponse;
 import lombok.Builder;
 
 import java.util.List;
