@@ -14,6 +14,7 @@ import java.util.UUID;
 public record ApplierProfileResponse(
         UUID applierProfileId,
         UserResponse user,
+        String cv,
         List<EducationResponse> education,
         List<ProjectResponse> project,
         List<SkillResponse> skill,

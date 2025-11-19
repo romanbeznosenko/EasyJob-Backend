@@ -10,7 +10,6 @@ import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.models
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.models.EducationResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileManager;
 import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileNotFoundException;
-import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileCVResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.project.management.ProjectManager;
@@ -59,59 +58,80 @@ public class ApplierProfileGenerateCVService {
     private final ResumePdfGenerator resumePdfGenerator;
     private final StorageService storageService;
 
-    public String generate() throws IOException {
-        log.info("Generating CV based on applier profile");
+    public void generate() {
+        try {
+            log.info("Generating CV based on applier profile");
 
-        UserDAO userDAO = (UserDAO) request.getAttribute("user");
-        ApplierProfileDAO applierProfileDAO = applierProfileManager.findByUser(userDAO.getId())
-                .orElseThrow(ApplierProfileNotFoundException::new);
+            UserDAO userDAO = (UserDAO) request.getAttribute("user");
+            ApplierProfileDAO applierProfileDAO = applierProfileManager.findByUser(userDAO.getId())
+                    .orElseThrow(ApplierProfileNotFoundException::new);
 
-        PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
-        Page<EducationDAO> educationPage = educationManager.findByApplierProfile_Id(applierProfileDAO.getId(), pageable);
-        Page<ProjectDAO> projectPage = projectManager.findByApplierProfile_Id(applierProfileDAO.getId(), pageable);
-        Page<SkillDAO> skillPage = skillManager.findByApplierProfile_Id(applierProfileDAO.getId(), pageable);
-        Page<WorkExperienceDAO> workExperiencePage = workExperienceManager.findByApplierProfile(applierProfileDAO.getId(), pageable);
+            PageRequest pageable = PageRequest.of(0, Integer.MAX_VALUE);
+            Page<EducationDAO> educationPage = educationManager.findByApplierProfile_Id(applierProfileDAO.getId(), pageable);
+            Page<ProjectDAO> projectPage = projectManager.findByApplierProfile_Id(applierProfileDAO.getId(), pageable);
+            Page<SkillDAO> skillPage = skillManager.findByApplierProfile_Id(applierProfileDAO.getId(), pageable);
+            Page<WorkExperienceDAO> workExperiencePage = workExperienceManager.findByApplierProfile(applierProfileDAO.getId(), pageable);
 
-        List<EducationResponse> educationResponses = educationPage.get()
-                .filter(item -> item.getIsArchived() == false)
-                .map(item -> educationMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
-                .toList();
+            List<EducationResponse> educationResponses = educationPage.get()
+                    .filter(item -> !item.getIsArchived())
+                    .map(item -> educationMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
+                    .toList();
 
-        List<ProjectResponse> projectResponses = projectPage.get()
-                .filter(item -> item.getIsArchived() == false)
-                .map(item -> projectMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
-                .toList();
+            List<ProjectResponse> projectResponses = projectPage.get()
+                    .filter(item -> !item.getIsArchived())
+                    .map(item -> projectMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
+                    .toList();
 
-        List<SkillResponse> skillResponses = skillPage.get()
-                .filter(item -> item.getIsArchived() == false)
-                .map(item -> skillMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
-                .toList();
+            List<SkillResponse> skillResponses = skillPage.get()
+                    .filter(item -> !item.getIsArchived())
+                    .map(item -> skillMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
+                    .toList();
 
-        List<WorkExperienceResponse> workExperienceResponses = workExperiencePage.get()
-                .filter(item -> item.getIsArchived() == false)
-                .map(item -> workExperienceMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
-                .toList();
+            List<WorkExperienceResponse> workExperienceResponses = workExperiencePage.get()
+                    .filter(item -> !item.getIsArchived())
+                    .map(item -> workExperienceMapper.mapToResponse(item, new CycleAvoidingMappingContext()))
+                    .toList();
 
-        UserResponse userResponse = userMapper.mapToResponseFromEntity(userDAO, new CycleAvoidingMappingContext());
+            UserResponse userResponse = userMapper.mapToResponseFromEntity(userDAO, new CycleAvoidingMappingContext());
 
-        ApplierProfileResponse applierProfileResponse = ApplierProfileResponse.builder()
-                .applierProfileId(applierProfileDAO.getId())
-                .user(userResponse)
-                .education(educationResponses)
-                .project(projectResponses)
-                .skill(skillResponses)
-                .workExperience(workExperienceResponses)
-                .build();
-        String applierProfileString = ApplierProfileResponseMapper.mapToString(applierProfileResponse);
-        ApplierProfileCVResponse CVData = claudeAIService.getApplierProfileCV(applierProfileString);
+            ApplierProfileResponse applierProfileResponse = ApplierProfileResponse.builder()
+                    .applierProfileId(applierProfileDAO.getId())
+                    .user(userResponse)
+                    .education(educationResponses)
+                    .project(projectResponses)
+                    .skill(skillResponses)
+                    .workExperience(workExperienceResponses)
+                    .build();
 
-        byte[] CVFile = resumePdfGenerator.generateResumePdf(CVData);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        outputStream.write(CVFile, 0, CVFile.length);
+            String applierProfileString = ApplierProfileResponseMapper.mapToString(applierProfileResponse);
+            claudeAIService.getApplierProfileCV(applierProfileString)
+                    .thenAccept(CVData -> {
+                        if (CVData != null) {
+                            byte[] CVFile = null;
+                            try {
+                                CVFile = resumePdfGenerator.generateResumePdf(CVData);
+                                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        String storageKey = "%s/cv/%s.pdf".formatted(userDAO.getId(), UUID.randomUUID());
-        storageService.uploadFile(storageKey, "application/pdf", outputStream);
+                                String storageKey = "%s/cv/%s.pdf".formatted(userDAO.getId(), UUID.randomUUID());
+                                if (applierProfileDAO.getCv() != null){
+                                    storageService.deleteFile(applierProfileDAO.getCv());
+                                }
+                                applierProfileDAO.setCv(storageKey);
+                                applierProfileManager.saveToDatabase(applierProfileDAO);
 
-        return storageService.createPresignedGetUrl(storageKey);
+                                outputStream.write(CVFile);
+
+                                storageService.uploadFile(storageKey, "application/pdf", outputStream);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    });
+
+            log.info("CV Generated Successfully");
+        } catch (Exception e) {
+            log.error("Failed to generate CV", e);
+        }
     }
+
 }

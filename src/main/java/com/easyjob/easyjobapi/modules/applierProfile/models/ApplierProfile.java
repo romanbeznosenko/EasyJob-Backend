@@ -15,6 +15,7 @@ import java.time.Instant;
 public class ApplierProfile {
     private ApplierProfileId applierProfileId;
     private User user;
+    private String cv;
 
     private Instant createdAt;
     private Instant updatedAt;

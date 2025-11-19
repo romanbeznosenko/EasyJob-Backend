@@ -12,6 +12,7 @@ public class ApplierProfileBuilders {
         return ApplierProfile.builder()
                 .applierProfileId(ApplierProfileId.of(null))
                 .user(user)
+                .cv(null)
                 .build();
     }
 }

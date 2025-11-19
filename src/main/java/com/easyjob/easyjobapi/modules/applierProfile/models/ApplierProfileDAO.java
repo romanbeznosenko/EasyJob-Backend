@@ -27,6 +27,9 @@ public class ApplierProfileDAO {
     @JoinColumn(name = "user_id")
     private UserDAO user;
 
+    @Column(name = "cv")
+    private String cv;
+
     @CreationTimestamp
     @Column(name = "created_at")
     private Instant createdAt;

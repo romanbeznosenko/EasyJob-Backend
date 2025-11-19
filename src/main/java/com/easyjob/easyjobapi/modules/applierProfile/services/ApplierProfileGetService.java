@@ -3,6 +3,7 @@ package com.easyjob.easyjobapi.modules.applierProfile.services;
 import com.easyjob.easyjobapi.core.user.management.UserMapper;
 import com.easyjob.easyjobapi.core.user.models.UserDAO;
 import com.easyjob.easyjobapi.core.user.models.UserResponse;
+import com.easyjob.easyjobapi.files.storage.services.StorageService;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.management.EducationManager;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.management.EducationMapper;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.models.EducationDAO;
@@ -48,6 +49,7 @@ public class ApplierProfileGetService {
     private final WorkExperienceManager workExperienceManager;
     private final WorkExperienceMapper workExperienceMapper;
     private final UserMapper userMapper;
+    private final StorageService storageService;
 
     public ApplierProfileResponse get() {
         log.info("Getting user applier profile");
@@ -87,6 +89,7 @@ public class ApplierProfileGetService {
         return ApplierProfileResponse.builder()
                 .applierProfileId(applierProfileDAO.getId())
                 .user(userResponse)
+                .cv(storageService.createPresignedGetUrl(applierProfileDAO.getCv()))
                 .education(educationResponses)
                 .project(projectResponses)
                 .skill(skillResponses)

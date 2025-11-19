@@ -8,7 +8,10 @@ import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileCVResp
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
@@ -76,34 +79,39 @@ public class ClaudeAIService {
             Data:
             """;
 
-    public ApplierProfileCVResponse getApplierProfileCV(String applierProfile) {
+    @Async
+    public CompletableFuture<ApplierProfileCVResponse> getApplierProfileCV(String applierProfile) {
         log.info("Claude AI Service generating ApplierProfileCVResponse");
-        AnthropicClient client = AnthropicOkHttpClient.builder()
-                .apiKey(ANTHROPIC_API_KEY)
-                .build();
-
-        MessageCreateParams createParams = MessageCreateParams.builder()
-                .model(Model.CLAUDE_SONNET_4_20250514)
-                .maxTokens(2048)
-                .addUserMessage(PROMPT + applierProfile)
-                .build();
-
-        StringBuilder responseBuilder = new StringBuilder();
-        client.messages().create(createParams).content().stream()
-                .flatMap(contentBlock -> contentBlock.text().stream())
-                .forEach(textBlock -> responseBuilder.append(textBlock.text()));
-
-        String responseString = responseBuilder.toString()
-                .replace("```", "")
-                .replace("json", "")
-                .trim();
-
         try {
+            AnthropicClient client = AnthropicOkHttpClient.builder()
+                    .apiKey(ANTHROPIC_API_KEY)
+                    .build();
+
+            MessageCreateParams createParams = MessageCreateParams.builder()
+                    .model(Model.CLAUDE_SONNET_4_20250514)
+                    .maxTokens(2048)
+                    .addUserMessage(PROMPT + applierProfile)
+                    .build();
+
+            StringBuilder responseBuilder = new StringBuilder();
+            client.messages().create(createParams).content().stream()
+                    .flatMap(contentBlock -> contentBlock.text().stream())
+                    .forEach(textBlock -> responseBuilder.append(textBlock.text()));
+            log.info("Received response from Claude AI API");
+
+            String responseString = responseBuilder.toString()
+                    .replace("```", "")
+                    .replace("json", "")
+                    .trim();
+
             ObjectMapper mapper = new ObjectMapper();
-            return mapper.readValue(responseString, ApplierProfileCVResponse.class);
+            ApplierProfileCVResponse cvResponse = mapper.readValue(responseString, ApplierProfileCVResponse.class);
+            log.info("Claude AI Service is finished");
+            return CompletableFuture.completedFuture(cvResponse);
         } catch (Exception e) {
             log.error("Failed to parse JSON into ApplierProfileCVResponse", e);
-            return null;
+            return CompletableFuture.completedFuture(null);
         }
     }
+
 }
