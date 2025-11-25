@@ -118,4 +118,46 @@ public class UserExceptionHandler {
         CustomResponse<String> response = new CustomResponse<>(null, ex.getMessage(), HttpStatus.FORBIDDEN);
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler(UserNotRecruiterException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "403", description = "Logged user is not recruiter.",
+                    content = @Content(
+                            examples = @ExampleObject(value = """
+                                      {
+                                      "data": null,
+                                      "message": "Logged user is not recruiter.",
+                                      "status": "403 FORBIDDEN"
+                                    }
+                                    """
+                            )
+                    )),
+    })
+    public ResponseEntity<CustomResponse<String>> handleUserNotRecruiterException(UserNotRecruiterException ex) {
+        CustomResponse<String> response = new CustomResponse<>(null, ex.getMessage(), HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(UserAlreadyHasFirmException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "403", description = "User Already Has Firm.",
+                    content = @Content(
+                            examples = @ExampleObject(value = """
+                                      {
+                                      "data": null,
+                                      "message": "User Already Has Firm.",
+                                      "status": "403 FORBIDDEN"
+                                    }
+                                    """
+                            )
+                    )),
+    })
+    public ResponseEntity<CustomResponse<String>> handleUserAlreadyHasFirmException(UserAlreadyHasFirmException ex) {
+        CustomResponse<String> response = new CustomResponse<>(null, ex.getMessage(), HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
 }
