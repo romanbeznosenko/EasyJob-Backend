@@ -33,7 +33,7 @@ public class OfferGetService {
         log.info("Getting offers from firm");
 
         UserDAO userDAO = (UserDAO) request.getAttribute("user");
-        if (userDAO.getUserType().equals(UserTypeEnum.RECRUITER)) {
+        if (!userDAO.getUserType().equals(UserTypeEnum.RECRUITER)) {
             throw new UserNotRecruiterException();
         }
 

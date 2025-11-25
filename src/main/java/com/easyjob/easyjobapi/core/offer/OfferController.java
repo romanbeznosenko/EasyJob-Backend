@@ -106,7 +106,7 @@ public class OfferController {
             @RequestParam(name = "limit", required = false, defaultValue = "10") int limit,
             @RequestParam(name = "page", required = false, defaultValue = "1")int page
     ) {
-        OfferPageResponse response = offerGetAllService.getAllOffers(limit, page);
+        OfferPageResponse response = offerGetAllService.getAllOffers(page, limit);
 
         return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
     }
