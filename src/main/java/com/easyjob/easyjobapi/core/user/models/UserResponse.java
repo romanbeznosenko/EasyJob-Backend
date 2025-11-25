@@ -20,9 +20,6 @@ public record UserResponse(
         @Schema(description = "User surname", example = "Zdun")
         String surname,
 
-        @Schema(description = "User points", example = "10")
-        Integer points,
-
         @Schema(description = "User type", example = "RECRUITER")
         UserTypeEnum userType,
 

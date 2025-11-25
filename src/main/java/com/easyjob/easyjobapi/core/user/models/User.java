@@ -19,7 +19,6 @@ public class User {
     private String name;
     private String surname;
     private Boolean blocked;
-    private Integer points;
     private UserTypeEnum userType;
 
     private Boolean isArchived;

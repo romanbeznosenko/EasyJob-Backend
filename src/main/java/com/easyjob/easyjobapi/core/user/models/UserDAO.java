@@ -37,9 +37,6 @@ public class UserDAO {
     @Column(name = "blocked")
     private Boolean blocked;
 
-    @Column(name = "points")
-    private Integer points;
-
     @Column(name = "is_archived")
     private Boolean isArchived;
 

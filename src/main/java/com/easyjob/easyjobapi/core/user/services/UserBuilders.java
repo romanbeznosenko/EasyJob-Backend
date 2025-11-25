@@ -13,7 +13,6 @@ public class UserBuilders {
                    .userId(UserId.of(null))
                    .email(email.strip()
                                .toLowerCase())
-                   .points(0)
                    .isArchived(false)
                    .blocked(false)
                    .build();
