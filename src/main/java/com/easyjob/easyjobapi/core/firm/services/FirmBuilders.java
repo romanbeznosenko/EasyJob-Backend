@@ -9,7 +9,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class FirmBuilder {
+public class FirmBuilders {
     public static Firm buildFromRequest(FirmRequest firmRequest, User user) {
         return Firm.builder()
                 .firmId(FirmId.of(null))

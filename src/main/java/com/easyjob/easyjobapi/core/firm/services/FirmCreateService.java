@@ -41,7 +41,7 @@ public class FirmCreateService {
         }
 
         User user = userMapper.mapToDomain(userDAO, new CycleAvoidingMappingContext());
-        Firm firm = FirmBuilder.buildFromRequest(firmRequest, user);
+        Firm firm = FirmBuilders.buildFromRequest(firmRequest, user);
         firmDAO = firmMapper.mapToEntity(firm, new CycleAvoidingMappingContext());
         firmManager.saveToDatabase(firmDAO);
     }

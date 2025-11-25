@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -25,5 +26,9 @@ public class FirmManager {
 
     public Page<FirmDAO> findAll(Specification<FirmDAO> spec, Pageable pageable) {
         return firmRepository.findAll(spec, pageable);
+    }
+
+    public Optional<FirmDAO> findById(UUID id){
+        return firmRepository.findById(id);
     }
 }

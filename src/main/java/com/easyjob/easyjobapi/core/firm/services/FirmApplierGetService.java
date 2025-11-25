@@ -38,7 +38,7 @@ public class FirmApplierGetService {
 
         Page<FirmDAO> firmDAOPage = firmManager.findAll(spec, pageable);
         List<FirmResponse> firmResponses = firmDAOPage.get()
-                .map(item -> FirmBuilder.buildResponse(
+                .map(item -> FirmBuilders.buildResponse(
                         item,
                         storageService,
                         userMapper

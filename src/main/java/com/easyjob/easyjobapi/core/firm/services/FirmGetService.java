@@ -34,6 +34,6 @@ public class FirmGetService {
         FirmDAO firmDAO = firmManager.findFirmByUser(userDAO)
                 .orElseThrow(FirmNotFoundException::new);
 
-        return FirmBuilder.buildResponse(firmDAO, storageService, userMapper);
+        return FirmBuilders.buildResponse(firmDAO, storageService, userMapper);
     }
 }
