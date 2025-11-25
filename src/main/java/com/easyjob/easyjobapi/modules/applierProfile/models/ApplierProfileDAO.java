@@ -23,7 +23,7 @@ public class ApplierProfileDAO {
     @Column(name = "id")
     private UUID id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "user_id")
     private UserDAO user;
 

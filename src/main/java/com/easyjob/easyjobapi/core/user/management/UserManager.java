@@ -24,6 +24,4 @@ public class UserManager {
     public Optional<UserDAO> findUserByEmailAndArchivedFalse(String email) {
         return userRepository.findUserDAOByEmailAndIsArchivedFalse(email);
     }
-
-
 }
