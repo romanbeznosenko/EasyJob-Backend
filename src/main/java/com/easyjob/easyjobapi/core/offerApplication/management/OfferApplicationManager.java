@@ -7,6 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class OfferApplicationManager {
@@ -18,5 +21,9 @@ public class OfferApplicationManager {
 
     public Page<OfferApplicationDAO> findAll(Specification<OfferApplicationDAO> spec, Pageable pageable) {
         return offerApplicationRepository.findAll(spec, pageable);
+    }
+
+    public Optional<OfferApplicationDAO> findById(UUID id) {
+        return offerApplicationRepository.findById(id);
     }
 }

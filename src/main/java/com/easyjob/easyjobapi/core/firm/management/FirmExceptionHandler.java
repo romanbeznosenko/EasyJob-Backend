@@ -34,4 +34,25 @@ public class FirmExceptionHandler {
         CustomResponse<String> response = new CustomResponse<>(null, ex.getMessage(), HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(FirmOwnerMismatchException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "403", description = "Logged user does not have permission for this operation.",
+                    content = @Content(
+                            examples = @ExampleObject(value = """
+                                      {
+                                      "data": null,
+                                      "message": "Logged user does not have permission for this operation.",
+                                      "status": "403 FORBIDDEN"
+                                    }
+                                    """
+                            )
+                    )),
+    })
+    public ResponseEntity<CustomResponse<String>> handleFirmOwnerMismatchException(FirmOwnerMismatchException ex) {
+        CustomResponse<String> response = new CustomResponse<>(null, ex.getMessage(), HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
 }

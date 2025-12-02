@@ -1,9 +1,11 @@
 package com.easyjob.easyjobapi.core.offerApplication;
 
 import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplicationPageResponse;
+import com.easyjob.easyjobapi.core.offerApplication.services.OfferApplicationChangeStatusService;
 import com.easyjob.easyjobapi.core.offerApplication.services.OfferApplicationCreateService;
 import com.easyjob.easyjobapi.core.offerApplication.services.OfferApplicationUserGetService;
 import com.easyjob.easyjobapi.utils.CustomResponse;
+import com.easyjob.easyjobapi.utils.enums.ApplicationStatusEnum;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,7 @@ import java.util.UUID;
 public class OfferApplicationController {
     private final OfferApplicationCreateService offerApplicationCreateService;
     private final OfferApplicationUserGetService offerApplicationUserGetService;
+    private final OfferApplicationChangeStatusService offerApplicationChangeStatusService;
 
     private final static String DEFAULT_RESPONSE = "Operation successful.";
 
@@ -50,6 +53,22 @@ public class OfferApplicationController {
         OfferApplicationPageResponse response = offerApplicationUserGetService.getUserApplication(page, limit);
 
         return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK),
+                HttpStatus.OK);
+    }
+
+    @PutMapping("/{offerApplicationId}/status")
+    @Operation(
+            description = "Change offer application status",
+            summary = "Change offer application status"
+    )
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<CustomResponse<Void>> changeOfferApplicationStatus(
+            @PathVariable(name = "offerApplicationId")UUID offerApplicationId,
+            @RequestPart(name = "status")ApplicationStatusEnum status
+    ) {
+        offerApplicationChangeStatusService.changeStatus(offerApplicationId, status);
+
+        return new ResponseEntity<>(new CustomResponse<>(null, DEFAULT_RESPONSE, HttpStatus.OK),
                 HttpStatus.OK);
     }
 }
