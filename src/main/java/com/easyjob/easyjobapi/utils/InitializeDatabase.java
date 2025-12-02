@@ -180,6 +180,7 @@ public class InitializeDatabase {
                 .endDate(LocalDate.of(2020, 6, 15))
                 .major("Computer Science")
                 .gpa(4.2)
+                .isArchived(false)
                 .build();
 
         educationManager.saveToDatabase(educationDAO);

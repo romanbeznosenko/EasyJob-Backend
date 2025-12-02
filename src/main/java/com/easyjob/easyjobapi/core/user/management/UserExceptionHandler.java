@@ -160,4 +160,25 @@ public class UserExceptionHandler {
         CustomResponse<String> response = new CustomResponse<>(null, ex.getMessage(), HttpStatus.FORBIDDEN);
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler(UserNotApplierException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "403", description = "Logged user is not applier.",
+                    content = @Content(
+                            examples = @ExampleObject(value = """
+                                      {
+                                      "data": null,
+                                      "message": "Logged user is not applier.",
+                                      "status": "403 FORBIDDEN"
+                                    }
+                                    """
+                            )
+                    )),
+    })
+    public ResponseEntity<CustomResponse<String>> handleUserNotApplierException(UserNotApplierException ex) {
+        CustomResponse<String> response = new CustomResponse<>(null, ex.getMessage(), HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
 }
