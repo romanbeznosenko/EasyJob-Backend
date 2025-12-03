@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Creative Resume</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Trebuchet MS', 'Lucida Sans', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: white;
+        }
+
+        .resume-container {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            display: flex;
+        }
+
+        .left-column {
+            width: 38%;
+            background: linear-gradient(180deg, #1a202c 0%, #2d3748 100%);
+            color: white;
+            padding: 50px 35px;
+        }
+
+        .profile-section {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #4a5568;
+        }
+
+        .profile-section h1 {
+            font-size: 26px;
+            margin-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .profile-section .email {
+            font-size: 11px;
+            color: #e2e8f0;
+            margin-top: 10px;
+            word-break: break-word;
+        }
+
+        .summary-box {
+            background-color: rgba(74, 85, 104, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 35px;
+            border-left: 3px solid #f6ad55;
+        }
+
+        .summary-box p {
+            font-size: 12px;
+            line-height: 1.7;
+            color: #e2e8f0;
+        }
+
+        .sidebar-section {
+            margin-bottom: 35px;
+            page-break-inside: avoid;
+        }
+
+        .sidebar-section h2 {
+            font-size: 16px;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #f6ad55;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 8px;
+        }
+
+        .sidebar-section h2:after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 40px;
+            height: 2px;
+            background-color: #f6ad55;
+        }
+
+        .skills-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .skill-item {
+            background-color: rgba(74, 85, 104, 0.3);
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-size: 12px;
+            border-left: 3px solid #f6ad55;
+        }
+
+        .skill-name {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .skill-level {
+            font-size: 11px;
+            color: #cbd5e0;
+            margin-top: 3px;
+        }
+
+        .right-column {
+            width: 62%;
+            padding: 50px 45px;
+            background-color: #ffffff;
+        }
+
+        .section {
+            margin-bottom: 35px;
+            page-break-inside: avoid;
+        }
+
+        .section h2 {
+            font-size: 22px;
+            color: #1a202c;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .section h2:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #f6ad55 0%, #ed8936 100%);
+        }
+
+        .experience-item,
+        .education-item,
+        .project-item {
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #f6ad55;
+            page-break-inside: avoid;
+        }
+
+        .item-header {
+            margin-bottom: 10px;
+        }
+
+        .item-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 5px;
+        }
+
+        .item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .item-subtitle {
+            font-size: 13px;
+            color: #f6ad55;
+            font-weight: 600;
+        }
+
+        .item-date {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 500;
+            background-color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+        }
+
+        .item-description {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        .responsibilities-list {
+            margin-top: 12px;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .responsibilities-list li {
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #4a5568;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .responsibilities-list li:before {
+            content: '●';
+            position: absolute;
+            left: 0;
+            color: #f6ad55;
+            font-size: 16px;
+        }
+
+        .project-footer {
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .tech-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tech-tag {
+            background-color: white;
+            color: #2d3748;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid #e2e8f0;
+        }
+
+        a {
+            color: #f6ad55;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        a:hover {
+            color: #ed8936;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="resume-container">
+    <!-- Left Column -->
+    <div class="left-column">
+        <div class="profile-section">
+            <h1 th:text="${personalInfo.fullName}">Your Name</h1>
+            <p class="email" th:text="${personalInfo.email}">email@example.com</p>
+        </div>
+
+        <div class="summary-box" th:if="${summary != null and !summary.isEmpty()}">
+            <p th:text="${summary}">Professional summary</p>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="sidebar-section" th:if="${skills != null and !skills.isEmpty()}">
+            <h2>Skills</h2>
+            <div class="skills-grid">
+                <div class="skill-item" th:each="skill : ${skills}">
+                    <div class="skill-name" th:text="${skill.name}">Skill Name</div>
+                    <div class="skill-level" th:if="${skill.level != null and !skill.level.isEmpty()}"
+                         th:text="${skill.level}">Level</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="right-column">
+        <!-- Work Experience Section -->
+        <section class="section" th:if="${workExperience != null and !workExperience.isEmpty()}">
+            <h2>Experience</h2>
+
+            <div class="experience-item" th:each="exp : ${workExperience}">
+                <div class="item-header">
+                    <h3 class="item-title" th:text="${exp.title}">Job Title</h3>
+                    <div class="item-meta">
+                        <p class="item-subtitle"
+                           th:text="${exp.companyName + (exp.location != null and !exp.location.isEmpty() ? ' • ' + exp.location : '')}">
+                            Company • Location
+                        </p>
+                        <span class="item-date" th:text="${exp.dateRange}">DATE - DATE</span>
+                    </div>
+                </div>
+                <ul class="responsibilities-list" th:if="${exp.responsibilities != null and !exp.responsibilities.isEmpty()}">
+                    <li th:each="resp : ${exp.responsibilities}" th:text="${resp}">Responsibility</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Education Section -->
+        <section class="section" th:if="${education != null and !education.isEmpty()}">
+            <h2>Education</h2>
+
+            <div class="education-item" th:each="edu : ${education}">
+                <div class="item-header">
+                    <h3 class="item-title"
+                        th:text="${edu.degree + (edu.major != null and !edu.major.isEmpty() ? ' in ' + edu.major : '')}">
+                        Degree in Major
+                    </h3>
+                    <div class="item-meta">
+                        <p class="item-subtitle" th:text="${edu.university}">University Name</p>
+                        <span class="item-date" th:text="${edu.dateRange}">DATE - DATE</span>
+                    </div>
+                </div>
+                <p class="item-description" th:if="${edu.gpa != null and !edu.gpa.isEmpty()}"
+                   th:text="'GPA: ' + ${edu.gpa}">GPA: 4.0</p>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section class="section" th:if="${projects != null and !projects.isEmpty()}">
+            <h2>Projects</h2>
+
+            <div class="project-item" th:each="project : ${projects}">
+                <h3 class="item-title">
+                    <span th:if="${project.link != null and !project.link.isEmpty()}">
+                        <a th:href="${project.link}" th:text="${project.name}">Project Name</a>
+                    </span>
+                    <span th:if="${project.link == null or project.link.isEmpty()}"
+                          th:text="${project.name}">Project Name</span>
+                </h3>
+                <p class="item-description"
+                   th:if="${project.description != null and !project.description.isEmpty()}"
+                   th:text="${project.description}">
+                    Project description
+                </p>
+                <div class="project-footer" th:if="${project.technologies != null and !project.technologies.isEmpty()}">
+                    <div class="tech-container">
+                        <span class="tech-tag" th:each="tech : ${project.technologies}" th:text="${tech}">Tech</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+</body>
+</html>
