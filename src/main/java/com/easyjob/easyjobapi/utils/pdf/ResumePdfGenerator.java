@@ -1,6 +1,7 @@
 package com.easyjob.easyjobapi.utils.pdf;
 
 import com.easyjob.easyjobapi.modules.applierProfile.models.*;
+import com.easyjob.easyjobapi.utils.enums.CVTemplateEnum;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,13 +26,18 @@ public class ResumePdfGenerator {
     private static final DateTimeFormatter INPUT_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter OUTPUT_DATE_FORMAT = DateTimeFormatter.ofPattern("MMM yyyy");
 
-    public byte[] generateResumePdf(ApplierProfileCVResponse cvData) throws IOException {
+    public byte[] generateResumePdf(ApplierProfileCVResponse cvData, CVTemplateEnum template) throws IOException {
         Map<String, Object> templateData = prepareTemplateData(cvData);
 
         Context context = new Context();
         context.setVariables(templateData);
-        String html = templateEngine.process("resume-template", context);
 
+        String html = switch (template) {
+            case MINIMAL -> templateEngine.process("cv-template-minimal", context);
+            case MODERN -> templateEngine.process("cv-template-modern", context);
+            case CREATIVE -> templateEngine.process("cv-template-creative", context);
+            case CORPORATE -> templateEngine.process("cv-template-corporate", context);
+        };
         return convertHtmlToPdf(html);
     }
 
@@ -118,7 +124,9 @@ public class ResumePdfGenerator {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
-            builder.withHtmlContent(html, null);
+            // Provide a base URL for resource resolution
+            // This is required by OpenHTMLToPDF even though we have inline CSS
+            builder.withHtmlContent(html, "file:///");
             builder.toStream(outputStream);
             builder.run();
 

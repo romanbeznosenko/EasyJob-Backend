@@ -26,6 +26,7 @@ import com.easyjob.easyjobapi.modules.applierProfile.submodules.workExperience.m
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.workExperience.models.WorkExperienceResponse;
 import com.easyjob.easyjobapi.utils.CycleAvoidingMappingContext;
 import com.easyjob.easyjobapi.utils.claude.ClaudeAIService;
+import com.easyjob.easyjobapi.utils.enums.CVTemplateEnum;
 import com.easyjob.easyjobapi.utils.pdf.ResumePdfGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,7 @@ public class ApplierProfileGenerateCVService {
     private final ResumePdfGenerator resumePdfGenerator;
     private final StorageService storageService;
 
-    public void generate() {
+    public void generate(CVTemplateEnum template) {
         try {
             log.info("Generating CV based on applier profile");
 
@@ -109,7 +110,7 @@ public class ApplierProfileGenerateCVService {
                         if (CVData != null) {
                             byte[] CVFile = null;
                             try {
-                                CVFile = resumePdfGenerator.generateResumePdf(CVData);
+                                CVFile = resumePdfGenerator.generateResumePdf(CVData, template);
                                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
                                 String storageKey = "%s/cv/%s.pdf".formatted(userDAO.getId(), UUID.randomUUID());

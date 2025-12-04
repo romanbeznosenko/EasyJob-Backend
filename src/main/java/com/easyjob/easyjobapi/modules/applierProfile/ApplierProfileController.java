@@ -4,15 +4,13 @@ import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileRespon
 import com.easyjob.easyjobapi.modules.applierProfile.services.ApplierProfileGenerateCVService;
 import com.easyjob.easyjobapi.modules.applierProfile.services.ApplierProfileGetService;
 import com.easyjob.easyjobapi.utils.CustomResponse;
+import com.easyjob.easyjobapi.utils.enums.CVTemplateEnum;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/user/applier-profile")
@@ -41,8 +39,10 @@ public class ApplierProfileController {
             summary = "Create CV based on applier profile"
     )
     @PreAuthorize("permitAll()")
-    public ResponseEntity<CustomResponse<String>> createCV() {
-        applierProfileGenerateCVService.generate();
+    public ResponseEntity<CustomResponse<String>> createCV(
+            @RequestParam(name = "template")CVTemplateEnum template
+            ) {
+        applierProfileGenerateCVService.generate(template);
 
         return new ResponseEntity<>(new CustomResponse<>(DEFAULT_RESPONSE, "CV generation started!", HttpStatus.ACCEPTED),
                 HttpStatus.ACCEPTED);

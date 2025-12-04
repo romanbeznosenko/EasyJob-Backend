@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minimal Resume</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.7;
+            color: #1a1a1a;
+            background-color: white;
+        }
+
+        .resume-container {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            padding: 60px 70px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            margin-bottom: 8px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: #1a1a1a;
+        }
+
+        .header .email {
+            font-size: 12px;
+            color: #666;
+            letter-spacing: 1px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .summary {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #444;
+            margin-bottom: 40px;
+            text-align: center;
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+            font-style: italic;
+        }
+
+        .skills-section {
+            margin-bottom: 45px;
+            text-align: center;
+        }
+
+        .skills-section h2 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .skills-inline {
+            font-size: 13px;
+            color: #444;
+            line-height: 1.8;
+        }
+
+        .skill-separator {
+            margin: 0 8px;
+            color: #ccc;
+        }
+
+        .section {
+            margin-bottom: 45px;
+            page-break-inside: avoid;
+        }
+
+        .section h2 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #1a1a1a;
+            margin-bottom: 25px;
+            font-weight: 600;
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .experience-item,
+        .education-item,
+        .project-item {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+
+        .item-header {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .item-date {
+            font-size: 11px;
+            color: #888;
+            letter-spacing: 1px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .item-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .item-description {
+            font-size: 13px;
+            color: #444;
+            line-height: 1.7;
+            margin-top: 8px;
+        }
+
+        .responsibilities-list {
+            margin-top: 10px;
+            padding-left: 25px;
+            list-style: none;
+        }
+
+        .responsibilities-list li {
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #444;
+            line-height: 1.7;
+            position: relative;
+        }
+
+        .responsibilities-list li:before {
+            content: '—';
+            position: absolute;
+            left: -20px;
+            color: #999;
+        }
+
+        .project-meta {
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #e0e0e0;
+            margin: 35px 0;
+        }
+
+        a {
+            color: #1a1a1a;
+            text-decoration: underline;
+            text-decoration-color: #ccc;
+        }
+
+        a:hover {
+            text-decoration-color: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+<div class="resume-container">
+    <!-- Header -->
+    <div class="header">
+        <h1 th:text="${personalInfo.fullName}">Your Name</h1>
+        <p class="email" th:text="${personalInfo.email}">email@example.com</p>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary" th:if="${summary != null and !summary.isEmpty()}" th:text="${summary}">
+        Professional summary goes here
+    </div>
+
+    <!-- Skills Section -->
+    <div class="skills-section" th:if="${skills != null and !skills.isEmpty()}">
+        <h2>Skills</h2>
+        <div class="skills-inline">
+            <th:block th:each="skill, iterStat : ${skills}">
+                <span th:text="${skill.name + (skill.level != null and !skill.level.isEmpty() ? ' (' + skill.level + ')' : '')}">
+                    Skill
+                </span>
+                <span class="skill-separator" th:if="${!iterStat.last}">•</span>
+            </th:block>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Work Experience Section -->
+    <section class="section" th:if="${workExperience != null and !workExperience.isEmpty()}">
+        <h2>Experience</h2>
+
+        <div class="experience-item" th:each="exp : ${workExperience}">
+            <div class="item-header">
+                <h3 class="item-title" th:text="${exp.title}">Job Title</h3>
+                <span class="item-date" th:text="${exp.dateRange}">DATE - DATE</span>
+            </div>
+            <p class="item-subtitle"
+               th:text="${exp.companyName + (exp.location != null and !exp.location.isEmpty() ? ', ' + exp.location : '')}">
+                Company, Location
+            </p>
+            <ul class="responsibilities-list" th:if="${exp.responsibilities != null and !exp.responsibilities.isEmpty()}">
+                <li th:each="resp : ${exp.responsibilities}" th:text="${resp}">Responsibility</li>
+            </ul>
+        </div>
+    </section>
+
+    <div class="divider" th:if="${(workExperience != null and !workExperience.isEmpty()) and (education != null and !education.isEmpty())}"></div>
+
+    <!-- Education Section -->
+    <section class="section" th:if="${education != null and !education.isEmpty()}">
+        <h2>Education</h2>
+
+        <div class="education-item" th:each="edu : ${education}">
+            <div class="item-header">
+                <h3 class="item-title"
+                    th:text="${edu.degree + (edu.major != null and !edu.major.isEmpty() ? ' in ' + edu.major : '')}">
+                    Degree in Major
+                </h3>
+                <span class="item-date" th:text="${edu.dateRange}">DATE - DATE</span>
+            </div>
+            <p class="item-subtitle" th:text="${edu.university}">University Name</p>
+            <p class="item-description" th:if="${edu.gpa != null and !edu.gpa.isEmpty()}"
+               th:text="'GPA: ' + ${edu.gpa}">GPA: 4.0</p>
+        </div>
+    </section>
+
+    <div class="divider" th:if="${(education != null and !education.isEmpty()) and (projects != null and !projects.isEmpty())}"></div>
+
+    <!-- Projects Section -->
+    <section class="section" th:if="${projects != null and !projects.isEmpty()}">
+        <h2>Projects</h2>
+
+        <div class="project-item" th:each="project : ${projects}">
+            <h3 class="item-title">
+                <span th:if="${project.link != null and !project.link.isEmpty()}">
+                    <a th:href="${project.link}" th:text="${project.name}">Project Name</a>
+                </span>
+                <span th:if="${project.link == null or project.link.isEmpty()}"
+                      th:text="${project.name}">Project Name</span>
+            </h3>
+            <p class="item-description"
+               th:if="${project.description != null and !project.description.isEmpty()}"
+               th:text="${project.description}">
+                Project description
+            </p>
+            <p class="project-meta" th:if="${project.technologies != null and !project.technologies.isEmpty()}">
+                <span th:text="'Technologies: ' + ${#strings.listJoin(project.technologies, ', ')}"></span>
+            </p>
+        </div>
+    </section>
+</div>
+</body>
+</html>
