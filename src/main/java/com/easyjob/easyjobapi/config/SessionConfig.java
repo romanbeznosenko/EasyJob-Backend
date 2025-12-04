@@ -22,9 +22,8 @@ public class SessionConfig {
         serializer.setUseHttpOnlyCookie(true);
         serializer.setSameSite("None");
         serializer.setUseSecureCookie(true);
-        serializer.setDomainNamePattern("^.+?\\.(\\w+\\.[a-z]+)$");
+        serializer.setDomainNamePattern("^.+?\\.([\\w-]+\\.[a-z]{2,}(?:\\.[a-z]{2})?)$");
         serializer.setCookieMaxAge(7 * 24 * 60 * 60);
-
 
         return serializer;
     }

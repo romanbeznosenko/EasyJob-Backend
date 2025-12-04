@@ -1,6 +1,5 @@
 package com.easyjob.easyjobapi.config;
 
-
 import com.easyjob.easyjobapi.filters.RequestLogFilter;
 import com.easyjob.easyjobapi.filters.TrackHeadersFilter;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,21 +13,19 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class WebSecurityConfig {
-
-
     private static final String[] WHITE_LIST_URL = {
             "/v3/api-docs",
             "/v3/api-docs.yaml",
@@ -53,41 +50,51 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, TrackHeadersFilter trackHeadersFilter, RequestLogFilter requestLogFilter) throws Exception {
-        httpSecurity.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.NEVER));
+        httpSecurity.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
         httpSecurity.addFilterBefore(requestLogFilter, UsernamePasswordAuthenticationFilter.class);
         httpSecurity.addFilterBefore(trackHeadersFilter, UsernamePasswordAuthenticationFilter.class);
         httpSecurity.cors(Customizer.withDefaults());
-//        httpSecurity.csrf((csrf) -> csrf.csrfTokenRepository(new HttpSessionCsrfTokenRepository()));
-        httpSecurity.csrf(AbstractHttpConfigurer::disable);
 
+        // Configure CSRF protection
+        CookieCsrfTokenRepository tokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        tokenRepository.setCookieName("XSRF-TOKEN");
+        tokenRepository.setHeaderName("X-XSRF-TOKEN");
+        tokenRepository.setCookiePath("/");
+
+        SpaCsrfTokenRequestHandler requestHandler = new SpaCsrfTokenRequestHandler();
+
+        httpSecurity.csrf(csrf -> csrf
+                .csrfTokenRepository(tokenRepository)
+                .csrfTokenRequestHandler(requestHandler)
+                .ignoringRequestMatchers("/auth/login")
+        );
         httpSecurity.authorizeHttpRequests(auth -> {
 
             auth.requestMatchers(HttpMethod.OPTIONS, "/**")
-                .permitAll();
+                    .permitAll();
 
             for (String urlPatter : WHITE_LIST_URL) {
                 auth.requestMatchers(urlPatter)
-                    .permitAll();
+                        .permitAll();
             }
 
             auth.requestMatchers("/api/**")
-                .authenticated();
+                    .authenticated();
 
         });
 
         httpSecurity.exceptionHandling(exceptionHandling ->
-                                               exceptionHandling.authenticationEntryPoint(
-                                                       new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                exceptionHandling.authenticationEntryPoint(
+                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
         );
 
         // Configure logout
         httpSecurity.logout(logout -> logout
                 .logoutUrl("/auth/logout")
-                .logoutSuccessHandler(
-                        (request, response, authentication) -> response.setStatus(HttpServletResponse.SC_OK))
+                .logoutSuccessHandler((request, response, authentication) -> response.setStatus(HttpServletResponse.SC_OK))
                 .invalidateHttpSession(true)
                 .deleteCookies("DFSESSIONID")
-                .deleteCookies("CSRF-TOKEN")
+                .deleteCookies("XSRF-TOKEN")
                 .permitAll()
         );
 
