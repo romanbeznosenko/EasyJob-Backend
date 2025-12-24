@@ -25,6 +25,7 @@ public class FirmController {
     private final FirmApplierGetService firmApplierGetService;
     private final FirmEditRequest firmEditRequest;
     private final FirmUploadLogoService firmUploadLogoService;
+    private final FirmCheckExistenceService firmCheckExistenceService;
 
     private final static String DEFAULT_RESPONSE = "Operation successful!";
 
@@ -95,5 +96,16 @@ public class FirmController {
         firmEditRequest.edit(request);
 
         return new ResponseEntity<>(new CustomResponse<>(null, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/check")
+    @Operation(
+            description = "Check if firm exists for logged user",
+            summary = "Check if firm exists for logged user"
+    )
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<CustomResponse<Boolean>> checkFirm() {
+        Boolean response = firmCheckExistenceService.checkIfFirmExists();
+        return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
     }
 }
