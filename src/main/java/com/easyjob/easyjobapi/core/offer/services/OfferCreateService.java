@@ -33,7 +33,7 @@ public class OfferCreateService {
         log.info("Create Offer service started");
 
         UserDAO userDAO = (UserDAO) request.getAttribute("user");
-        if (userDAO.getUserType().equals(UserTypeEnum.RECRUITER)) {
+        if (!userDAO.getUserType().equals(UserTypeEnum.RECRUITER)) {
             throw new UserNotRecruiterException();
         }
 
