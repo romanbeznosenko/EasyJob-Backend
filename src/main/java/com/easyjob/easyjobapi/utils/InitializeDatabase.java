@@ -111,6 +111,8 @@ public class InitializeDatabase {
         OfferDAO offer = OfferDAO.builder()
                 .name("Backend Developer")
                 .description("We are looking for a Backend Developer experienced with Java, Spring Boot, and REST APIs to join our platform engineering team.")
+                .responsibilities("Design and develop RESTful APIs using Spring Boot; Write clean, maintainable, and testable code; Collaborate with frontend developers to integrate user-facing elements; Optimize application performance and scalability; Participate in code reviews and technical discussions; Debug and resolve production issues; Maintain comprehensive documentation")
+                .requirements("3+ years of experience with Java and Spring Boot; Strong understanding of REST API design principles; Experience with relational databases (PostgreSQL/MySQL); Familiarity with version control systems (Git); Knowledge of microservices architecture; Bachelor's degree in Computer Science or related field")
                 .firm(firm)
                 .isArchived(false)
                 .build();
@@ -120,6 +122,8 @@ public class InitializeDatabase {
         OfferDAO offer2 = OfferDAO.builder()
                 .name("Junior QA Engineer")
                 .description("Entry-level QA position focusing on manual testing, test case creation, and basic automation using Selenium.")
+                .responsibilities("Execute manual test cases and report bugs; Create and maintain test documentation; Perform regression testing on new features; Learn and implement basic test automation with Selenium; Collaborate with developers to understand requirements; Participate in daily standup meetings; Track and verify bug fixes")
+                .requirements("0-2 years of QA experience or recent graduate; Basic understanding of software testing principles; Familiarity with bug tracking tools (Jira, Bugzilla); Knowledge of Selenium or willingness to learn; Strong attention to detail; Good communication skills; Bachelor's degree preferred but not required")
                 .firm(firm)
                 .isArchived(false)
                 .build();
@@ -129,6 +133,8 @@ public class InitializeDatabase {
         OfferDAO offer3 = OfferDAO.builder()
                 .name("Full-Stack Developer")
                 .description("A developer capable of working with React on the frontend and Node.js on the backend. Experience with CI/CD pipelines is a plus.")
+                .responsibilities("Develop and maintain web applications using React and Node.js; Build responsive user interfaces with modern CSS frameworks; Design and implement database schemas; Set up and maintain CI/CD pipelines; Write unit and integration tests; Monitor application performance and troubleshoot issues; Mentor junior developers")
+                .requirements("4+ years of full-stack development experience; Proficiency in React and Node.js; Experience with Express.js or similar frameworks; Strong understanding of JavaScript/TypeScript; Knowledge of MongoDB or PostgreSQL; Familiarity with Docker and CI/CD tools (Jenkins, GitHub Actions); Experience with AWS or Azure is a plus")
                 .firm(firm)
                 .isArchived(false)
                 .build();
