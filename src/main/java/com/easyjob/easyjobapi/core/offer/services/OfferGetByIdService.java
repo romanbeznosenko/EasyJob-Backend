@@ -26,6 +26,10 @@ public class OfferGetByIdService {
         OfferDAO offerDAO = offerManager.findById(offerId)
                 .orElseThrow(OfferNotFoundException::new);
 
+        if (offerDAO.getIsArchived() == false){
+            throw new OfferNotFoundException();
+        }
+
         return OfferBuilders.buildResponse(
                 offerDAO,
                 storageService,

@@ -31,6 +31,7 @@ public class OfferGetAllService {
         Page<OfferDAO> offerDAOS = offerManager.findAll(pageable);
 
         List<OfferResponse> offerResponses = offerDAOS.get()
+                .filter(item -> item.getIsArchived() == false)
                 .map(item -> OfferBuilders.buildResponse(
                         item,
                         storageService,

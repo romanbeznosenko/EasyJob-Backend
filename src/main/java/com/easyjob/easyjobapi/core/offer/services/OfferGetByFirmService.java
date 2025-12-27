@@ -33,6 +33,7 @@ public class OfferGetByFirmService {
         List<OfferDAO> offerDAOS = offerManager.findByFirm(firmDAO);
 
         List<OfferResponse> offerResponses = offerDAOS.stream()
+                .filter(item -> item.getIsArchived() == false)
                 .map(item -> OfferBuilders.buildResponse(
                         item,
                         storageService,
