@@ -15,6 +15,8 @@ public class OfferBuilders {
                 .offerId(OfferId.of(null))
                 .name(request.name())
                 .description(request.description())
+                .responsibilities(request.responsibilities())
+                .requirements(request.requirements())
                 .firm(firm)
                 .build();
     }
