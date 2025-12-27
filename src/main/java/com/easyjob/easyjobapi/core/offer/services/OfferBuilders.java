@@ -24,6 +24,8 @@ public class OfferBuilders {
                 .offerId(offer.getId())
                 .name(offer.getName())
                 .description(offer.getDescription())
+                .responsibilities(offer.getResponsibilities())
+                .requirements(offer.getRequirements())
                 .firm(FirmBuilders.buildResponse(offer.getFirm(), storageService, userMapper))
                 .build();
     }

@@ -17,6 +17,8 @@ public class Offer {
     private String name;
     private String description;
     private Firm firm;
+    private String responsibilities;
+    private String requirements;
 
     private Instant createdAt;
     private Instant updatedAt;

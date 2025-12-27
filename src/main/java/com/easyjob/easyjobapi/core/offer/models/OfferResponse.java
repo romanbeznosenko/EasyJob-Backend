@@ -17,6 +17,12 @@ public record OfferResponse(
         @Schema(description = "Offer's description", example = "This a software developer position")
         String description,
 
+        @Schema(description = "Offer's responsibilities", example = "This is example")
+        String responsibilities,
+
+        @Schema(description = "Offer's requirements", example = "This is requirements")
+        String requirements,
+
         @Schema(description = "Offer's firm", implementation = FirmResponse.class)
         FirmResponse firm
 ) {

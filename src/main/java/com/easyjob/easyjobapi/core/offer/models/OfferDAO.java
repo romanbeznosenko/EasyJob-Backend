@@ -29,6 +29,12 @@ public class OfferDAO {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "responsibilities")
+    private String responsibilities;
+
+    @Column(name = "requirements")
+    private String requirements;
+
     @JoinColumn(name = "firm_id")
     @ManyToOne
     private FirmDAO firm;
