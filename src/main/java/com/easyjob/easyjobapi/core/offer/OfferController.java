@@ -25,6 +25,7 @@ public class OfferController {
     private final OfferGetByIdService offerGetByIdService;
     private final OfferGetService offerGetService;
     private final OfferGetAllService offerGetAllService;
+    private final OfferDeleteService offerDeleteService;
 
     private final static String DEFAULT_RESPONSE = "Operation successful.";
 
@@ -109,5 +110,19 @@ public class OfferController {
         OfferPageResponse response = offerGetAllService.getAllOffers(page, limit);
 
         return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/{offerId}")
+    @Operation(
+            description = "Delete offer by ID",
+            summary = "Delete offer by ID"
+    )
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<CustomResponse<Void>> deleteOfferById(
+            @PathVariable UUID offerId
+    ) {
+        offerDeleteService.deleteJobOffer(offerId);
+
+        return new ResponseEntity<>(new CustomResponse<>(null, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
     }
 }
