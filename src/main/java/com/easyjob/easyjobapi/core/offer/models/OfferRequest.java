@@ -12,9 +12,11 @@ public record OfferRequest(
         @Schema(description = "Offer's description", example = "This is a software developer position")
         String description,
 
+        @NotBlank
         @Schema(description = "Offer's responsibilities", example = "This is example")
         String responsibilities,
 
+        @NotBlank
         @Schema(description = "Offer's requirements", example = "This is requirements")
         String requirements
 ) {

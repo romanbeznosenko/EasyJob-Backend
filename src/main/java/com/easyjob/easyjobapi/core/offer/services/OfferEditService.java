@@ -39,6 +39,8 @@ public class OfferEditService {
 
         offerDAO.setName(offerRequest.name());
         offerDAO.setDescription(offerRequest.description());
+        offerDAO.setRequirements(offerRequest.requirements());
+        offerDAO.setResponsibilities(offerRequest.responsibilities());
 
         offerManager.saveToDatabase(offerDAO);
 
