@@ -41,7 +41,7 @@ public class OfferApplicationCreateService {
         log.info("Creating Offer Application");
 
         UserDAO userDAO = (UserDAO) request.getAttribute("user");
-        if (userDAO.getUserType().equals(UserTypeEnum.RECRUITER)) {
+        if (!userDAO.getUserType().equals(UserTypeEnum.APPLIER)) {
             throw new UserNotApplierException();
         }
 

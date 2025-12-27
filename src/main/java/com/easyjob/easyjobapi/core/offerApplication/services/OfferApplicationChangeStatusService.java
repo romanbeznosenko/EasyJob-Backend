@@ -28,7 +28,7 @@ public class OfferApplicationChangeStatusService {
         log.info("Changing offer application status with id: {}", offerApplicationId);
 
         UserDAO userDAO = (UserDAO) request.getAttribute("user");
-        if (userDAO.getUserType().equals(UserTypeEnum.RECRUITER)) {
+        if (!userDAO.getUserType().equals(UserTypeEnum.RECRUITER)) {
             throw new UserNotRecruiterException();
         }
 

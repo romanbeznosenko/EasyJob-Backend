@@ -66,7 +66,7 @@ public class OfferApplicationController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<CustomResponse<Void>> changeOfferApplicationStatus(
             @PathVariable(name = "offerApplicationId")UUID offerApplicationId,
-            @RequestPart(name = "status")ApplicationStatusEnum status
+            @RequestParam(name = "status")ApplicationStatusEnum status
     ) {
         offerApplicationChangeStatusService.changeStatus(offerApplicationId, status);
 
