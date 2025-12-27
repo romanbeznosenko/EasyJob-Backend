@@ -1,6 +1,8 @@
 package com.easyjob.easyjobapi.core.offerApplicationEvaluation.management;
 
+import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplicationDAO;
 import com.easyjob.easyjobapi.core.offerApplicationEvaluation.models.OfferApplicationEvaluationDAO;
+import com.easyjob.easyjobapi.core.offerApplicationEvaluation.models.OfferApplicationEvaluationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,5 +24,9 @@ public class OfferApplicationEvaluationManager {
 
     public Optional<OfferApplicationEvaluationDAO> findById(UUID id) {
         return offerApplicationEvaluationRepository.findById(id);
+    }
+
+    public Optional<OfferApplicationEvaluationDAO> findByOfferApplication(OfferApplicationDAO offerApplication) {
+        return offerApplicationEvaluationRepository.findByOfferApplication(offerApplication);
     }
 }

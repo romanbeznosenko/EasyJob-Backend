@@ -1,6 +1,7 @@
 package com.easyjob.easyjobapi.core.offerApplication.services;
 
 import com.easyjob.easyjobapi.core.offer.models.Offer;
+import com.easyjob.easyjobapi.core.offer.models.OfferDAO;
 import com.easyjob.easyjobapi.core.offer.services.OfferBuilders;
 import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplication;
 import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplicationDAO;
@@ -9,6 +10,7 @@ import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplicationRespo
 import com.easyjob.easyjobapi.core.user.management.UserMapper;
 import com.easyjob.easyjobapi.files.storage.services.StorageService;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfile;
+import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.services.ApplierProfileBuilders;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.models.EducationResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.project.models.ProjectResponse;
@@ -30,6 +32,19 @@ public class OfferApplicationBuilders {
                 .status(ApplicationStatusEnum.PENDING)
                 .isArchived(false)
                 .build();
+    }
+
+    public static OfferApplicationDAO buildOfferApplicationDAO(
+            OfferDAO offerDAO,
+            ApplierProfileDAO applierProfileDAO) {
+
+        OfferApplicationDAO offerApplicationDAO = new OfferApplicationDAO();
+        offerApplicationDAO.setOffer(offerDAO);
+        offerApplicationDAO.setApplierProfile(applierProfileDAO);
+        offerApplicationDAO.setStatus(ApplicationStatusEnum.PENDING);
+        offerApplicationDAO.setIsArchived(false);
+
+        return offerApplicationDAO;
     }
 
     public static OfferApplicationResponse buildResponse(

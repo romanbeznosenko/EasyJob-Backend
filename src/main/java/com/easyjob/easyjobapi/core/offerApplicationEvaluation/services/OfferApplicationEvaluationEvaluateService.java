@@ -4,17 +4,14 @@ import com.easyjob.easyjobapi.core.firm.management.FirmOwnerMismatchException;
 import com.easyjob.easyjobapi.core.offerApplication.management.OfferApplicationManager;
 import com.easyjob.easyjobapi.core.offerApplication.management.OfferApplicationMapper;
 import com.easyjob.easyjobapi.core.offerApplication.management.OfferApplicationNotFoundException;
-import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplication;
 import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplicationDAO;
 import com.easyjob.easyjobapi.core.offerApplicationEvaluation.management.OfferApplicationEvaluationManager;
 import com.easyjob.easyjobapi.core.offerApplicationEvaluation.management.OfferApplicationEvaluationMapper;
-import com.easyjob.easyjobapi.core.offerApplicationEvaluation.models.OfferApplicationEvaluation;
 import com.easyjob.easyjobapi.core.offerApplicationEvaluation.models.OfferApplicationEvaluationAIResponse;
 import com.easyjob.easyjobapi.core.offerApplicationEvaluation.models.OfferApplicationEvaluationDAO;
 import com.easyjob.easyjobapi.core.user.management.UserNotRecruiterException;
 import com.easyjob.easyjobapi.core.user.models.UserDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileMapper;
-import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfile;
 import com.easyjob.easyjobapi.modules.applierProfile.services.ApplierProfileBuilders;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.management.EducationManager;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.models.EducationDAO;
@@ -24,7 +21,6 @@ import com.easyjob.easyjobapi.modules.applierProfile.submodules.skill.management
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.skill.models.SkillDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.workExperience.management.WorkExperienceManager;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.workExperience.models.WorkExperienceDAO;
-import com.easyjob.easyjobapi.utils.CycleAvoidingMappingContext;
 import com.easyjob.easyjobapi.utils.EvaluationPromptBuilder;
 import com.easyjob.easyjobapi.utils.claude.ClaudeEvaluateCandidateService;
 import com.easyjob.easyjobapi.utils.enums.ProcessStatusEnum;
@@ -95,12 +91,11 @@ public class OfferApplicationEvaluationEvaluateService {
         if (existingEvaluation != null) {
             evaluationDAO = existingEvaluation;
         } else {
-            OfferApplication offerApplication = offerApplicationMapper.mapToDomain(offerApplicationDAO, new CycleAvoidingMappingContext());
-            ApplierProfile applierProfile = applierProfileMapper.mapToDomain(offerApplicationDAO.getApplierProfile(), new CycleAvoidingMappingContext());
-
-            OfferApplicationEvaluation offerApplicationEvaluation = OfferApplicationEvaluationBuilders.build(offerApplication, applierProfile);
-            evaluationDAO = offerApplicationEvaluationMapper.mapToEntity(offerApplicationEvaluation, new CycleAvoidingMappingContext());
-            evaluationDAO.setProcessStatus(ProcessStatusEnum.PENDING); // Set initial status
+            evaluationDAO = OfferApplicationEvaluationBuilders.buildEvaluationDAO(
+                    offerApplicationDAO,
+                    offerApplicationDAO.getApplierProfile()
+            );
+            evaluationDAO.setProcessStatus(ProcessStatusEnum.PENDING);
         }
 
         evaluationDAO = offerApplicationEvaluationManager.saveToDatabase(evaluationDAO);
@@ -108,11 +103,14 @@ public class OfferApplicationEvaluationEvaluateService {
 
         log.info("Created evaluation with id: {} and status: PENDING", evaluationId);
 
-        processEvaluationAsync(evaluationId, offerApplicationDAO);
+        processEvaluationAsync(evaluationId, id);
     }
 
-    private void processEvaluationAsync(UUID evaluationId, OfferApplicationDAO offerApplicationDAO) {
+    private void processEvaluationAsync(UUID evaluationId, UUID offerApplicationId) {
         log.info("Starting async evaluation process for evaluation id: {}", evaluationId);
+
+        OfferApplicationDAO offerApplicationDAO = offerApplicationManager.findById(offerApplicationId)
+                .orElseThrow(() -> new RuntimeException("Offer application not found: " + offerApplicationId));
 
         List<WorkExperienceDAO> workExperiences = ApplierProfileBuilders.buildWorkExperiences(offerApplicationDAO.getApplierProfile(), workExperienceManager);
         List<EducationDAO> educations = ApplierProfileBuilders.buildEducations(offerApplicationDAO.getApplierProfile(), educationManager);

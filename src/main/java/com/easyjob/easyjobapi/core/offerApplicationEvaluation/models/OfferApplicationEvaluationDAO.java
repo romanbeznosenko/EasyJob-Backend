@@ -1,15 +1,15 @@
 package com.easyjob.easyjobapi.core.offerApplicationEvaluation.models;
 
-import com.easyjob.easyjobapi.core.offer.models.OfferDAO;
+import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplicationDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileDAO;
 import com.easyjob.easyjobapi.utils.enums.ApplicationStatusEnum;
 import com.easyjob.easyjobapi.utils.enums.ProcessStatusEnum;
 import com.easyjob.easyjobapi.utils.enums.RecommendationEnum;
+import com.fasterxml.jackson.annotation.JsonRawValue;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.mapstruct.EnumMapping;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -28,9 +28,9 @@ public class OfferApplicationEvaluationDAO {
     @Column(name = "id")
     private UUID id;
 
-    @ManyToOne
-    @JoinColumn(name = "offer_id")
-    private OfferDAO offer;
+    @OneToOne
+    @JoinColumn(name = "offer_application_id")
+    private OfferApplicationDAO offerApplication;
 
     @ManyToOne
     @JoinColumn(name = "applier_profile_id")
@@ -55,6 +55,7 @@ public class OfferApplicationEvaluationDAO {
     private Integer projectScore;
 
     @Column(name = "skills_analysis", columnDefinition = "TEXT")
+    @JsonRawValue
     private String skillsAnalysis;
 
     @Column(name = "strengths", columnDefinition = "TEXT")

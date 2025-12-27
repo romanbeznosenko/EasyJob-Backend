@@ -1,22 +1,15 @@
 package com.easyjob.easyjobapi.core.offerApplication.services;
 
 import com.easyjob.easyjobapi.core.offer.magenement.OfferManager;
-import com.easyjob.easyjobapi.core.offer.magenement.OfferMapper;
 import com.easyjob.easyjobapi.core.offer.magenement.OfferNotFoundException;
-import com.easyjob.easyjobapi.core.offer.models.Offer;
 import com.easyjob.easyjobapi.core.offer.models.OfferDAO;
 import com.easyjob.easyjobapi.core.offerApplication.management.OfferApplicationManager;
-import com.easyjob.easyjobapi.core.offerApplication.management.OfferApplicationMapper;
-import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplication;
 import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplicationDAO;
 import com.easyjob.easyjobapi.core.user.management.UserNotApplierException;
 import com.easyjob.easyjobapi.core.user.models.UserDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileManager;
-import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileMapper;
 import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileNotFoundException;
-import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfile;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileDAO;
-import com.easyjob.easyjobapi.utils.CycleAvoidingMappingContext;
 import com.easyjob.easyjobapi.utils.enums.UserTypeEnum;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -31,11 +24,8 @@ import java.util.UUID;
 public class OfferApplicationCreateService {
     private final HttpServletRequest request;
     private final OfferApplicationManager offerApplicationManager;
-    private final OfferApplicationMapper offerApplicationMapper;
     private final OfferManager offerManager;
-    private final OfferMapper offerMapper;
     private final ApplierProfileManager applierProfileManager;
-    private final ApplierProfileMapper applierProfileMapper;
 
     public void create(UUID offerId){
         log.info("Creating Offer Application");
@@ -47,17 +37,14 @@ public class OfferApplicationCreateService {
 
         OfferDAO offerDAO = offerManager.findById(offerId)
                 .orElseThrow(OfferNotFoundException::new);
-        Offer offer = offerMapper.mapToDomain(offerDAO, new CycleAvoidingMappingContext());
 
         ApplierProfileDAO applierProfileDAO = applierProfileManager.findByUser(userDAO.getId())
                 .orElseThrow(ApplierProfileNotFoundException::new);
-        ApplierProfile applierProfile = applierProfileMapper.mapToDomain(applierProfileDAO, new CycleAvoidingMappingContext());
 
-        OfferApplication offerApplication = OfferApplicationBuilders.buildOfferApplication(
-                offer,
-                applierProfile
+        OfferApplicationDAO offerApplicationDAO = OfferApplicationBuilders.buildOfferApplicationDAO(
+                offerDAO,
+                applierProfileDAO
         );
-        OfferApplicationDAO offerApplicationDAO = offerApplicationMapper.mapToEntity(offerApplication, new CycleAvoidingMappingContext());
 
         offerApplicationManager.saveToDatabase(offerApplicationDAO);
     }
