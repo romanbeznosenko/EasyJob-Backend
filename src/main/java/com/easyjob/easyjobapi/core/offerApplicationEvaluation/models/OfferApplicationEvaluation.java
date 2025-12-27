@@ -3,6 +3,7 @@ package com.easyjob.easyjobapi.core.offerApplicationEvaluation.models;
 import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplication;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfile;
 import com.easyjob.easyjobapi.utils.enums.ApplicationStatusEnum;
+import com.easyjob.easyjobapi.utils.enums.ProcessStatusEnum;
 import com.easyjob.easyjobapi.utils.enums.RecommendationEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,6 +34,7 @@ public class OfferApplicationEvaluation {
     private String interviewFocusAreas;
     private String detailedSummary;
     private RecommendationEnum recommendation;
+    private ProcessStatusEnum processStatus;
 
     private Instant createdAt;
     private Instant updatedAt;

@@ -3,6 +3,7 @@ package com.easyjob.easyjobapi.core.offerApplicationEvaluation.models;
 import com.easyjob.easyjobapi.core.offer.models.OfferDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileDAO;
 import com.easyjob.easyjobapi.utils.enums.ApplicationStatusEnum;
+import com.easyjob.easyjobapi.utils.enums.ProcessStatusEnum;
 import com.easyjob.easyjobapi.utils.enums.RecommendationEnum;
 import jakarta.persistence.*;
 import lombok.*;
@@ -77,6 +78,10 @@ public class OfferApplicationEvaluationDAO {
     @Column(name = "recommendation")
     @Enumerated(EnumType.STRING)
     private RecommendationEnum recommendation;
+
+    @Column(name = "process_status")
+    @Enumerated(EnumType.STRING)
+    private ProcessStatusEnum processStatus;
 
     @CreationTimestamp
     @Column(name = "created_at")
