@@ -4,6 +4,9 @@ import com.easyjob.easyjobapi.core.offerApplicationEvaluation.models.OfferApplic
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class OfferApplicationEvaluationManager {
@@ -11,5 +14,13 @@ public class OfferApplicationEvaluationManager {
 
     public OfferApplicationEvaluationDAO saveToDatabase(OfferApplicationEvaluationDAO offerApplicationEvaluation) {
         return offerApplicationEvaluationRepository.save(offerApplicationEvaluation);
+    }
+
+    public Optional<OfferApplicationEvaluationDAO> findByOfferAndApplierProfile(UUID offerId, UUID applierProfileId) {
+        return offerApplicationEvaluationRepository.findByOfferAndApplierProfile(offerId, applierProfileId);
+    }
+
+    public Optional<OfferApplicationEvaluationDAO> findById(UUID id) {
+        return offerApplicationEvaluationRepository.findById(id);
     }
 }

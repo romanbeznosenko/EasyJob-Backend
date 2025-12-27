@@ -15,7 +15,7 @@ public class OfferApplicationEvaluationBuilders {
                 .offerApplicationEvaluationId(OfferApplicationEvaluationId.of(null))
                 .offerApplication(offerApplication)
                 .applierProfile(applierProfile)
-                .processStatus(ProcessStatusEnum.IN_PROGRESS)
+                .processStatus(ProcessStatusEnum.PENDING)
                 .build();
     }
 }

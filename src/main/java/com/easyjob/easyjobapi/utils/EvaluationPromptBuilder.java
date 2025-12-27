@@ -1,7 +1,6 @@
 package com.easyjob.easyjobapi.utils;
 
 import com.easyjob.easyjobapi.core.offer.models.OfferDAO;
-import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.models.EducationDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.project.models.ProjectDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.skill.models.SkillDAO;
@@ -15,7 +14,6 @@ import java.util.stream.Collectors;
 public class EvaluationPromptBuilder {
     public static String createPrompt(
             OfferDAO offer,
-            ApplierProfileDAO applierProfile,
             List<SkillDAO> skills,
             List<WorkExperienceDAO> workExperiences,
             List<EducationDAO> educations,
