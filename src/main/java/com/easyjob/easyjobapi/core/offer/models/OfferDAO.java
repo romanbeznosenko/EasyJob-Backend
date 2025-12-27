@@ -26,13 +26,13 @@ public class OfferDAO {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "responsibilities")
+    @Column(name = "responsibilities", columnDefinition = "TEXT")
     private String responsibilities;
 
-    @Column(name = "requirements")
+    @Column(name = "requirements", columnDefinition = "TEXT")
     private String requirements;
 
     @JoinColumn(name = "firm_id")
