@@ -8,7 +8,7 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
 public interface CVMapper {
-    @Mapping(target = "id", expression = "java(toMap.getCVId().getId())")
+    @Mapping(target = "id", expression = "java(toMap.getCvId().getId())")
     CVDAO mapToEntity(CV toMap,
                       @Context CycleAvoidingMappingContext cycleAvoidingMappingContext);
 
