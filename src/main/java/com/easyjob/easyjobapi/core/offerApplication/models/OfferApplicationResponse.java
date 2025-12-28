@@ -6,6 +6,7 @@ import com.easyjob.easyjobapi.utils.enums.ApplicationStatusEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Builder
@@ -23,6 +24,9 @@ public record OfferApplicationResponse(
         ApplicationStatusEnum status,
 
         @Schema(description = "Is opened flag", example = "false")
-        Boolean isOpened
+        Boolean isOpened,
+
+        @Schema(description = "Creation timestamp")
+        Instant createdAt
 ) {
 }

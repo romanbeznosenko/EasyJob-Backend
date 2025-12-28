@@ -72,6 +72,7 @@ public class OfferApplicationBuilders {
                 ))
                 .status(offerApplication.getStatus())
                 .isOpened(offerApplication.getIsOpened())
+                .createdAt(offerApplication.getCreatedAt())
                 .build();
     }
 }
