@@ -38,6 +38,10 @@ public class OfferApplicationEvaluationBuilders {
     }
 
     public static OfferApplicationEvaluationResponse buildResponse(OfferApplicationEvaluationDAO dao) {
+        if (dao == null) {
+            return null;
+        }
+
         SkillsAnalysisResponse skillsAnalysis = null;
 
         if (dao.getSkillsAnalysis() != null && !dao.getSkillsAnalysis().isEmpty()) {

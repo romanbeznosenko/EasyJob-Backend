@@ -40,7 +40,7 @@ public class OfferApplicationEvaluationGetService {
         }
 
         OfferApplicationEvaluationDAO evaluationDAO = offerApplicationEvaluationManager.findByOfferApplication(offerApplicationDAO)
-                .orElseThrow(() -> new RuntimeException("Offer Application Evaluation with id: " + offerApplicationId + " not found"));
+                .orElse(null);
 
         return OfferApplicationEvaluationBuilders.buildResponse(evaluationDAO);
     }
