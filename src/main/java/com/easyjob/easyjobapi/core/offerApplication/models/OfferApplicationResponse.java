@@ -20,6 +20,9 @@ public record OfferApplicationResponse(
         ApplierProfileResponse applierProfile,
 
         @Schema(description = "Offer application status", example = "ACCEPTED")
-        ApplicationStatusEnum status
+        ApplicationStatusEnum status,
+
+        @Schema(description = "Is opened flag", example = "false")
+        Boolean isOpened
 ) {
 }

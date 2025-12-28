@@ -1,10 +1,7 @@
 package com.easyjob.easyjobapi.core.offerApplication;
 
 import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplicationPageResponse;
-import com.easyjob.easyjobapi.core.offerApplication.services.OfferApplicationChangeStatusService;
-import com.easyjob.easyjobapi.core.offerApplication.services.OfferApplicationCreateService;
-import com.easyjob.easyjobapi.core.offerApplication.services.OfferApplicationListService;
-import com.easyjob.easyjobapi.core.offerApplication.services.OfferApplicationUserGetService;
+import com.easyjob.easyjobapi.core.offerApplication.services.*;
 import com.easyjob.easyjobapi.utils.CustomResponse;
 import com.easyjob.easyjobapi.utils.enums.ApplicationStatusEnum;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,6 +21,7 @@ public class OfferApplicationController {
     private final OfferApplicationUserGetService offerApplicationUserGetService;
     private final OfferApplicationChangeStatusService offerApplicationChangeStatusService;
     private final OfferApplicationListService offerApplicationListService;
+    private final OfferApplicationOpenService offerApplicationOpenService;
 
     private final static String DEFAULT_RESPONSE = "Operation successful.";
 
@@ -89,5 +87,19 @@ public class OfferApplicationController {
 
         return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK),
                 HttpStatus.OK);
+    }
+
+    @PutMapping("/{offerApplicationId}/open")
+    @Operation(
+            description = "Open offer application (change flag)",
+            summary = "Open offer application (change flag)"
+    )
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<CustomResponse<Void>> openOfferApplication(
+            @PathVariable(name = "offerApplicationId") UUID offerApplicationId
+    ) {
+        offerApplicationOpenService.open(offerApplicationId);
+
+        return new ResponseEntity<>(new CustomResponse<>(null, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
     }
 }

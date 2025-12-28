@@ -19,6 +19,7 @@ public class OfferApplication {
     private Offer offer;
     private ApplierProfile applierProfile;
     private ApplicationStatusEnum status;
+    private Boolean isOpened;
 
     private Instant createdAt;
     private Instant updatedAt;

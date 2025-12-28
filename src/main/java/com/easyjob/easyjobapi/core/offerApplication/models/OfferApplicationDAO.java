@@ -36,6 +36,9 @@ public class OfferApplicationDAO {
     @Column(name = "status")
     private ApplicationStatusEnum status;
 
+    @Column(name = "is_opened")
+    private Boolean isOpened;
+
     @CreationTimestamp
     @Column(name = "created_at")
     private Instant createdAt;

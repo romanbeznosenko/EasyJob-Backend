@@ -43,6 +43,7 @@ public class OfferApplicationBuilders {
         offerApplicationDAO.setApplierProfile(applierProfileDAO);
         offerApplicationDAO.setStatus(ApplicationStatusEnum.PENDING);
         offerApplicationDAO.setIsArchived(false);
+        offerApplicationDAO.setIsOpened(false);
 
         return offerApplicationDAO;
     }
@@ -70,6 +71,7 @@ public class OfferApplicationBuilders {
                         workExperienceResponses
                 ))
                 .status(offerApplication.getStatus())
+                .isOpened(offerApplication.getIsOpened())
                 .build();
     }
 }
