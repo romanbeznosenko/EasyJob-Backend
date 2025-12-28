@@ -4,8 +4,12 @@ import com.easyjob.easyjobapi.core.user.management.UserMapper;
 import com.easyjob.easyjobapi.core.user.models.UserDAO;
 import com.easyjob.easyjobapi.core.user.models.UserResponse;
 import com.easyjob.easyjobapi.files.storage.services.StorageService;
+import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfile;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.management.CVManager;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.management.CVMapper;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.models.CV;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.models.CVDAO;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.services.CVBuilders;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.management.EducationManager;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.management.EducationMapper;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.models.EducationDAO;
@@ -60,6 +64,7 @@ public class ApplierProfileGenerateCVService {
     private final StorageService storageService;
     private final ResumePDFService resumePDFService;
     private final CVManager cvManager;
+    private final CVMapper cvMapper;
 
     public void generate(CVTemplateEnum template) {
         try {
@@ -143,13 +148,9 @@ public class ApplierProfileGenerateCVService {
                                 outputStream.write(cvFile);
                                 storageService.uploadFile(storageKey, "application/pdf", outputStream);
 
-                                CVDAO cvDAO = CVDAO.builder()
-                                        .applierProfile(applierProfileDAO)
-                                        .filename(storageKey)
-                                        .storageKey(storageKey)
-                                        .thumbnail(null)
-                                        .isArchived(false)
-                                        .build();
+                                CV cv = CVBuilders.build(null, storageKey, null);
+                                CVDAO cvDAO = cvMapper.mapToEntity(cv, new CycleAvoidingMappingContext());
+                                cvDAO.setApplierProfile(applierProfileDAO);
                                 cvManager.saveToDatabase(cvDAO);
 
 
