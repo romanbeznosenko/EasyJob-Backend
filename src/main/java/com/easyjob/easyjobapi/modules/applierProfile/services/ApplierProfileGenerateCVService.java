@@ -27,6 +27,7 @@ import com.easyjob.easyjobapi.modules.applierProfile.submodules.workExperience.m
 import com.easyjob.easyjobapi.utils.CycleAvoidingMappingContext;
 import com.easyjob.easyjobapi.utils.claude.ClaudeAIService;
 import com.easyjob.easyjobapi.utils.enums.CVTemplateEnum;
+import com.easyjob.easyjobapi.utils.pdf.ResumePDFService;
 import com.easyjob.easyjobapi.utils.pdf.ResumePdfGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +59,7 @@ public class ApplierProfileGenerateCVService {
     private final ClaudeAIService claudeAIService;
     private final ResumePdfGenerator resumePdfGenerator;
     private final StorageService storageService;
+    private final ResumePDFService resumePDFService;
 
     public void generate(CVTemplateEnum template) {
         try {
@@ -110,7 +112,8 @@ public class ApplierProfileGenerateCVService {
                         if (CVData != null) {
                             byte[] CVFile = null;
                             try {
-                                CVFile = resumePdfGenerator.generateResumePdf(CVData, template);
+                                CVFile = resumePDFService.generatePDF(CVData);
+//                                CVFile = resumePdfGenerator.generateResumePdf(CVData, template);
                                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
                                 String storageKey = "%s/cv/%s.pdf".formatted(userDAO.getId(), UUID.randomUUID());
@@ -125,6 +128,8 @@ public class ApplierProfileGenerateCVService {
                                 storageService.uploadFile(storageKey, "application/pdf", outputStream);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
+                            } catch (Exception e){
+                                throw new RuntimeException(e);
                             }
                         }
                     });
@@ -134,5 +139,4 @@ public class ApplierProfileGenerateCVService {
             log.error("Failed to generate CV", e);
         }
     }
-
 }
