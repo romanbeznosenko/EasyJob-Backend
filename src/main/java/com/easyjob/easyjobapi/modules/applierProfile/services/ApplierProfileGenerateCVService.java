@@ -4,6 +4,8 @@ import com.easyjob.easyjobapi.core.user.management.UserMapper;
 import com.easyjob.easyjobapi.core.user.models.UserDAO;
 import com.easyjob.easyjobapi.core.user.models.UserResponse;
 import com.easyjob.easyjobapi.files.storage.services.StorageService;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.management.CVManager;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.models.CVDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.management.EducationManager;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.management.EducationMapper;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.models.EducationDAO;
@@ -57,6 +59,7 @@ public class ApplierProfileGenerateCVService {
     private final ClaudeAIService claudeAIService;
     private final StorageService storageService;
     private final ResumePDFService resumePDFService;
+    private final CVManager cvManager;
 
     public void generate(CVTemplateEnum template) {
         try {
@@ -112,6 +115,7 @@ public class ApplierProfileGenerateCVService {
 
             final CVTemplateEnum selectedTemplate = template;
 
+            CVTemplateEnum finalTemplate = template;
             claudeAIService.getApplierProfileCV(applierProfileString)
                     .thenAccept(cvData -> {
                         if (cvData != null) {
@@ -138,6 +142,16 @@ public class ApplierProfileGenerateCVService {
                                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                                 outputStream.write(cvFile);
                                 storageService.uploadFile(storageKey, "application/pdf", outputStream);
+
+                                CVDAO cvDAO = CVDAO.builder()
+                                        .applierProfile(applierProfileDAO)
+                                        .filename(storageKey)
+                                        .storageKey(storageKey)
+                                        .thumbnail(null)
+                                        .isArchived(false)
+                                        .build();
+                                cvManager.saveToDatabase(cvDAO);
+
 
                                 log.info("CV generated and uploaded successfully with template: {}, size: {} bytes",
                                         selectedTemplate, cvFile.length);
