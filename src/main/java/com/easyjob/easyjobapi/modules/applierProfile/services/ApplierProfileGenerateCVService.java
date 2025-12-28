@@ -28,7 +28,6 @@ import com.easyjob.easyjobapi.utils.CycleAvoidingMappingContext;
 import com.easyjob.easyjobapi.utils.claude.ClaudeAIService;
 import com.easyjob.easyjobapi.utils.enums.CVTemplateEnum;
 import com.easyjob.easyjobapi.utils.pdf.ResumePDFService;
-import com.easyjob.easyjobapi.utils.pdf.ResumePdfGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +36,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,13 +55,17 @@ public class ApplierProfileGenerateCVService {
     private final WorkExperienceMapper workExperienceMapper;
     private final UserMapper userMapper;
     private final ClaudeAIService claudeAIService;
-    private final ResumePdfGenerator resumePdfGenerator;
     private final StorageService storageService;
     private final ResumePDFService resumePDFService;
 
     public void generate(CVTemplateEnum template) {
         try {
-            log.info("Generating CV based on applier profile");
+            log.info("Generating CV with template: {}", template);
+
+            if (template == null) {
+                log.warn("Template is null, using default MODERN style");
+                template = CVTemplateEnum.MODERN;
+            }
 
             UserDAO userDAO = (UserDAO) request.getAttribute("user");
             ApplierProfileDAO applierProfileDAO = applierProfileManager.findByUser(userDAO.getId())
@@ -107,36 +109,60 @@ public class ApplierProfileGenerateCVService {
                     .build();
 
             String applierProfileString = ApplierProfileResponseMapper.mapToString(applierProfileResponse);
-            claudeAIService.getApplierProfileCV(applierProfileString)
-                    .thenAccept(CVData -> {
-                        if (CVData != null) {
-                            byte[] CVFile = null;
-                            try {
-                                CVFile = resumePDFService.generatePDF(CVData);
-//                                CVFile = resumePdfGenerator.generateResumePdf(CVData, template);
-                                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-                                String storageKey = "%s/cv/%s.pdf".formatted(userDAO.getId(), UUID.randomUUID());
-                                if (applierProfileDAO.getCv() != null){
+            final CVTemplateEnum selectedTemplate = template;
+
+            claudeAIService.getApplierProfileCV(applierProfileString)
+                    .thenAccept(cvData -> {
+                        if (cvData != null) {
+                            try {
+                                log.info("Generating PDF with template: {} for user: {}",
+                                        selectedTemplate, userDAO.getId());
+
+                                byte[] cvFile = resumePDFService.generatePDF(cvData, selectedTemplate);
+
+                                String storageKey = String.format("%s/cv/%s_%s.pdf",
+                                        userDAO.getId(),
+                                        selectedTemplate.name().toLowerCase(),
+                                        UUID.randomUUID());
+
+                                if (applierProfileDAO.getCv() != null) {
+                                    log.info("Deleting old CV: {}", applierProfileDAO.getCv());
                                     storageService.deleteFile(applierProfileDAO.getCv());
                                 }
+
                                 applierProfileDAO.setCv(storageKey);
                                 applierProfileManager.saveToDatabase(applierProfileDAO);
+                                log.info("CV reference saved to database: {}", storageKey);
 
-                                outputStream.write(CVFile);
-
+                                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                                outputStream.write(cvFile);
                                 storageService.uploadFile(storageKey, "application/pdf", outputStream);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            } catch (Exception e){
-                                throw new RuntimeException(e);
+
+                                log.info("CV generated and uploaded successfully with template: {}, size: {} bytes",
+                                        selectedTemplate, cvFile.length);
+
+                            } catch (Exception e) {
+                                log.error("Failed to generate or store CV with template: {}", selectedTemplate, e);
+                                throw new RuntimeException("CV generation failed: " + e.getMessage(), e);
                             }
+                        } else {
+                            log.warn("Claude AI returned null CV data for user: {}", userDAO.getId());
                         }
+                    })
+                    .exceptionally(throwable -> {
+                        log.error("Error in CV generation pipeline for template: {}", selectedTemplate, throwable);
+                        return null;
                     });
 
-            log.info("CV Generated Successfully");
+            log.info("CV generation process initiated successfully with template: {}", selectedTemplate);
+
+        } catch (ApplierProfileNotFoundException e) {
+            log.error("Applier profile not found for user", e);
+            throw e;
         } catch (Exception e) {
-            log.error("Failed to generate CV", e);
+            log.error("Failed to initiate CV generation with template: {}", template, e);
+            throw new RuntimeException("CV generation failed: " + e.getMessage(), e);
         }
     }
 }
