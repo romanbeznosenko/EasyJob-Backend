@@ -19,4 +19,8 @@ public class ApplierProfileManager {
     public Optional<ApplierProfileDAO> findByUser(UUID userId) {
         return applierProfileRepository.findByUser_Id(userId);
     }
+
+    public Optional<ApplierProfileDAO> findById(UUID id) {
+        return applierProfileRepository.findById(id);
+    }
 }

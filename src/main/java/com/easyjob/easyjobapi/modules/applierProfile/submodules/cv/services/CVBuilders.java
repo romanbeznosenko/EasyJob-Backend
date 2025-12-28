@@ -1,8 +1,12 @@
 package com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.services;
 
+import com.easyjob.easyjobapi.files.storage.services.StorageService;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfile;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.models.CV;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.models.CVDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.models.CVId;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.models.CVResponse;
+import com.easyjob.easyjobapi.utils.enums.ProcessStatusEnum;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -15,7 +19,19 @@ public class CVBuilders {
                 .storageKey(storageKey)
                 .filename(storageKey)
                 .thumbnail(thumbnail)
+                .processStatus(ProcessStatusEnum.PENDING)
                 .isArchived(false)
+                .build();
+    }
+
+    public static CVResponse buildResponse(CVDAO cvDAO, StorageService storageService) {
+        return CVResponse.builder()
+                .cvId(cvDAO.getId())
+                .storageKey(storageService.createPresignedGetUrl(cvDAO.getStorageKey()))
+                .filename(cvDAO.getFilename())
+                .thumbnail(storageService.createPresignedGetUrl(cvDAO.getThumbnail()))
+                .processStatus(cvDAO.getProcessStatus())
+                .createdAt(cvDAO.getCreatedAt())
                 .build();
     }
 }

@@ -8,6 +8,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -20,5 +22,9 @@ public class CVManager {
 
     public Page<CVDAO> findAll(Specification<CVDAO> specification, Pageable pageable) {
         return cvRepository.findAll(specification, pageable);
+    }
+
+    public Optional<CVDAO> findById(UUID id) {
+        return cvRepository.findById(id);
     }
 }

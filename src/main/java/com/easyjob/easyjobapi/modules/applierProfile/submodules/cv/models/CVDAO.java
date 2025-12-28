@@ -1,6 +1,7 @@
 package com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.models;
 
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileDAO;
+import com.easyjob.easyjobapi.utils.enums.ProcessStatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -35,6 +36,10 @@ public class CVDAO {
 
     @Column(name = "thumbnail")
     private String thumbnail;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "process_status")
+    private ProcessStatusEnum processStatus;
 
     @CreationTimestamp
     @Column(name = "created_at")

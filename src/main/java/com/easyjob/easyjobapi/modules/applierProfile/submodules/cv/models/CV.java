@@ -1,6 +1,7 @@
 package com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.models;
 
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfile;
+import com.easyjob.easyjobapi.utils.enums.ProcessStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +19,7 @@ public class CV {
     private String storageKey;
     private String filename;
     private String thumbnail;
+    private ProcessStatusEnum processStatus;
 
     private Instant createdAt;
     private Instant updatedAt;
