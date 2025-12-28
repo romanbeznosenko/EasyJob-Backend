@@ -1,4 +1,4 @@
-package com.easyjob.easyjobapi.utils.pdf;
+package com.easyjob.easyjobapi.utils.pdf.strategy;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;

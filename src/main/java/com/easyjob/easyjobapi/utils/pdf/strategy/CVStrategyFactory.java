@@ -1,4 +1,4 @@
-package com.easyjob.easyjobapi.utils.pdf;
+package com.easyjob.easyjobapi.utils.pdf.strategy;
 
 import com.easyjob.easyjobapi.utils.enums.CVTemplateEnum;
 import lombok.extern.slf4j.Slf4j;

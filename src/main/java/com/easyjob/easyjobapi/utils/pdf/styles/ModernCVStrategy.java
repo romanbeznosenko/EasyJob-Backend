@@ -1,6 +1,7 @@
-package com.easyjob.easyjobapi.utils.pdf;
+package com.easyjob.easyjobapi.utils.pdf.styles;
 
 import com.easyjob.easyjobapi.modules.applierProfile.models.*;
+import com.easyjob.easyjobapi.utils.pdf.strategy.AbstractCVGenerationStrategy;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import lombok.extern.slf4j.Slf4j;

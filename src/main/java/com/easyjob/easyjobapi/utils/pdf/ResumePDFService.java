@@ -2,6 +2,8 @@ package com.easyjob.easyjobapi.utils.pdf;
 
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileCVResponse;
 import com.easyjob.easyjobapi.utils.enums.CVTemplateEnum;
+import com.easyjob.easyjobapi.utils.pdf.strategy.CVGenerationStrategy;
+import com.easyjob.easyjobapi.utils.pdf.strategy.CVStrategyFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
