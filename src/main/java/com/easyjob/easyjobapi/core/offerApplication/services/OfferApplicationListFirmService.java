@@ -1,8 +1,5 @@
 package com.easyjob.easyjobapi.core.offerApplication.services;
 
-import com.easyjob.easyjobapi.core.offer.magenement.OfferManager;
-import com.easyjob.easyjobapi.core.offer.magenement.OfferNotFoundException;
-import com.easyjob.easyjobapi.core.offer.models.OfferDAO;
 import com.easyjob.easyjobapi.core.offerApplication.management.OfferApplicationManager;
 import com.easyjob.easyjobapi.core.offerApplication.management.OfferApplicationSpecifications;
 import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplicationDAO;
@@ -40,12 +37,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class OfferApplicationListService {
+public class OfferApplicationListFirmService {
     private final HttpServletRequest request;
     private final OfferApplicationManager offerApplicationManager;
     private final EducationManager educationManager;
@@ -58,19 +54,16 @@ public class OfferApplicationListService {
     private final WorkExperienceMapper workExperienceMapper;
     private final StorageService storageService;
     private final UserMapper userMapper;
-    private final OfferManager offerManager;
 
-    public OfferApplicationPageResponse getOfferApplicationList(UUID offerId, int page, int limit){
-        log.info("Get offer applications for offer with id: {}", offerId);
+    public OfferApplicationPageResponse getOfferApplicationList(int page, int limit){
+        log.info("Get offer applications for logged in firm");
         UserDAO userDAO = (UserDAO) request.getAttribute("user");
         if (!userDAO.getUserType().equals(UserTypeEnum.RECRUITER)) {
             throw new UserNotRecruiterException();
         }
 
-        OfferDAO offerDAO = offerManager.findById(offerId).orElseThrow(OfferNotFoundException::new);
-
         Pageable pageable = PageRequest.of(page - 1, limit);
-        Specification<OfferApplicationDAO> specification = OfferApplicationSpecifications.findByOffer(offerDAO);
+        Specification<OfferApplicationDAO> specification = OfferApplicationSpecifications.findByUser(userDAO);
 
         Page<OfferApplicationDAO> offerApplicationDAOS = offerApplicationManager.findAll(specification, pageable);
         List<OfferApplicationResponse> offerApplicationResponses = offerApplicationDAOS.get()

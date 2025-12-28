@@ -22,6 +22,7 @@ public class OfferApplicationController {
     private final OfferApplicationChangeStatusService offerApplicationChangeStatusService;
     private final OfferApplicationListService offerApplicationListService;
     private final OfferApplicationOpenService offerApplicationOpenService;
+    private final OfferApplicationListFirmService offerApplicationListFirmService;
 
     private final static String DEFAULT_RESPONSE = "Operation successful.";
 
@@ -51,6 +52,22 @@ public class OfferApplicationController {
             @RequestParam(name = "page", required = false, defaultValue = "1")int page
     ) {
         OfferApplicationPageResponse response = offerApplicationUserGetService.getUserApplication(page, limit);
+
+        return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK),
+                HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/firm/list")
+    @Operation(
+            description = "Get firm offer applications",
+            summary = "Get firm offer applications"
+    )
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<CustomResponse<OfferApplicationPageResponse>> getFirmOfferApplications(
+            @RequestParam(name = "limit", required = false, defaultValue = "10") int limit,
+            @RequestParam(name = "page", required = false, defaultValue = "1") int page
+    ) {
+        OfferApplicationPageResponse response = offerApplicationListFirmService.getOfferApplicationList(page, limit);
 
         return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK),
                 HttpStatus.OK);
