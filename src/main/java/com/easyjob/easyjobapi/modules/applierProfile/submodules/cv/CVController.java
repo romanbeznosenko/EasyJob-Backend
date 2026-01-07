@@ -1,10 +1,13 @@
 package com.easyjob.easyjobapi.modules.applierProfile.submodules.cv;
 
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.models.CVEditRequest;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.models.CVPageResponse;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.services.CVDeleteService;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.services.CVEditService;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.services.CVListService;
 import com.easyjob.easyjobapi.utils.CustomResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,7 @@ import java.util.UUID;
 public class CVController {
     private final CVListService cvListService;
     private final CVDeleteService cvDeleteService;
+    private final CVEditService cvEditService;
 
     private final static String DEFAULT_RESPONSE = "Operation successful.";
 
@@ -38,7 +42,7 @@ public class CVController {
         return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{cvId}")
+    @DeleteMapping(value = "/{cvId}")
     @Operation(
             description = "Delete cv",
             summary = "Delete cv"
@@ -52,4 +56,21 @@ public class CVController {
 
         return new ResponseEntity<>(new CustomResponse<>(null, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
     }
+
+    @PutMapping(value = "/{cvId}")
+    @Operation(
+            description = "Edit cv",
+            summary = "Edit cv"
+    )
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<CustomResponse<Void>> editCV(
+            @PathVariable(name = "cvId") UUID cvID,
+            @RequestBody @Valid CVEditRequest editRequest
+    ) {
+        cvEditService.edit(cvID, editRequest);
+
+        return new ResponseEntity<>(new CustomResponse<>(null, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
+    }
+
+
 }
