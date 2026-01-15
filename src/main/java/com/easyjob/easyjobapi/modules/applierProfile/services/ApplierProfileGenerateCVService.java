@@ -4,7 +4,6 @@ import com.easyjob.easyjobapi.core.user.management.UserMapper;
 import com.easyjob.easyjobapi.core.user.models.UserDAO;
 import com.easyjob.easyjobapi.core.user.models.UserResponse;
 import com.easyjob.easyjobapi.files.storage.services.StorageService;
-import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfile;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.management.CVManager;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.management.CVMapper;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.models.CV;

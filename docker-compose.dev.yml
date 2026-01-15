@@ -1,0 +1,96 @@
+version: "3.8"
+
+services:
+  easyjob-minio:
+    restart: unless-stopped
+    image: quay.io/minio/minio:RELEASE.2025-03-12T18-04-18Z
+    container_name: easyjob-minio
+    command: server /data --console-address ":9501"
+    volumes:
+      - schoolmoney_minio_data:/data
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_S3_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${STORAGE_S3_SECRET_KEY}
+    expose:
+      - "9000"
+    ports:
+      - "9501:9501"
+    networks:
+      - inside
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  easyjob-psql:
+    restart: unless-stopped
+    image: postgres:17.4-alpine3.21
+    container_name: easyjob-psql
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?err}
+      - POSTGRES_USER=${POSTGRES_USER:?err}
+      - POSTGRES_DB=${POSTGRES_DB:?err}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - easyjob_postgres_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    networks:
+      - inside
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  easyjob-app:
+    restart: unless-stopped
+    container_name: schoolmoney-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      # Database Configuration
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://easyjob-psql:5432/${POSTGRES_DB:?err}
+      - POSTGRES_URL=jdbc:postgresql://easyjob-psql:5432/${POSTGRES_DB:?err}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:?err}
+      - POSTGRES_USER=${POSTGRES_USER:?err}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:?err}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?err}
+
+      # CORS Configuration
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+
+      # Mailgun Configuration
+      - MAILGUN_API_KEY=${MAILGUN_API_KEY}
+      - MAILGUN_CLIENT_DOMAIN=${MAILGUN_CLIENT_DOMAIN}
+      - MAILGUN_FROM=${MAILGUN_FROM}
+      - MAIL_FRONTEND_URL=${MAIL_FRONTEND_URL}
+
+      # S3 / MinIO Configuration
+      - STORAGE_S3_BUCKET_NAME=${STORAGE_S3_BUCKET_NAME}
+      - STORAGE_S3_SECRET_KEY=${STORAGE_S3_SECRET_KEY}
+      - STORAGE_S3_ACCESS_KEY=${STORAGE_S3_ACCESS_KEY}
+      - STORAGE_S3_ENDPOINT=http://easyjob-minio:9000
+      - MINIO_ENDPOINT=http://easyjob-minio:9000
+      - MINIO_ACCESS_KEY=${STORAGE_S3_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${STORAGE_S3_SECRET_KEY}
+    expose:
+      - "8080"
+    depends_on:
+      schoolmoney-psql:
+        condition: service_healthy
+      schoolmoney-minio:
+        condition: service_healthy
+    networks:
+      - inside
+
+volumes:
+  easyjob_postgres_data:
+  easyjob_minio_data:
+
+networks:
+  inside:
+    name: easyjob_network
+    driver: bridge
