@@ -18,8 +18,7 @@ import com.easyjob.easyjobapi.modules.applierProfile.submodules.skill.management
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.skill.models.SkillDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.workExperience.management.WorkExperienceManager;
 import com.easyjob.easyjobapi.modules.applierProfile.submodules.workExperience.models.WorkExperienceDAO;
-import com.easyjob.easyjobapi.utils.enums.AuthTypeEnum;
-import com.easyjob.easyjobapi.utils.enums.UserTypeEnum;
+import com.easyjob.easyjobapi.utils.enums.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -108,39 +108,92 @@ public class InitializeDatabase {
     }
 
     private void createOffers(FirmDAO firm) {
-        OfferDAO offer = OfferDAO.builder()
+
+        OfferDAO backendOffer = OfferDAO.builder()
                 .name("Backend Developer")
                 .description("We are looking for a Backend Developer experienced with Java, Spring Boot, and REST APIs to join our platform engineering team.")
-                .responsibilities("Design and develop RESTful APIs using Spring Boot; Write clean, maintainable, and testable code; Collaborate with frontend developers to integrate user-facing elements; Optimize application performance and scalability; Participate in code reviews and technical discussions; Debug and resolve production issues; Maintain comprehensive documentation")
-                .requirements("3+ years of experience with Java and Spring Boot; Strong understanding of REST API design principles; Experience with relational databases (PostgreSQL/MySQL); Familiarity with version control systems (Git); Knowledge of microservices architecture; Bachelor's degree in Computer Science or related field")
+                .responsibilities(
+                        "Design and develop RESTful APIs using Spring Boot; " +
+                                "Write clean, maintainable, and testable code; " +
+                                "Collaborate with frontend developers; " +
+                                "Optimize application performance; " +
+                                "Participate in code reviews"
+                )
+                .requirements(
+                        "3+ years of experience with Java and Spring Boot; " +
+                                "Strong REST API knowledge; " +
+                                "Experience with PostgreSQL/MySQL; " +
+                                "Git knowledge"
+                )
                 .firm(firm)
+                .isSalaryDisclosed(true)
+                .salaryBottom(12000L)
+                .salaryTop(18000L)
+                .employmentType(EmploymentTypeEnum.FULL_TIME)
+                .experienceLevel(ExperienceLevelEnum.MID)
+                .workMode(WorkModeEnum.HYBRID)
+                .skills(List.of("Java", "Spring Boot", "REST", "PostgreSQL", "Docker"))
                 .isArchived(false)
                 .build();
 
-        offerManager.saveToDatabase(offer);
+        offerManager.saveToDatabase(backendOffer);
 
-        OfferDAO offer2 = OfferDAO.builder()
+        OfferDAO qaOffer = OfferDAO.builder()
                 .name("Junior QA Engineer")
-                .description("Entry-level QA position focusing on manual testing, test case creation, and basic automation using Selenium.")
-                .responsibilities("Execute manual test cases and report bugs; Create and maintain test documentation; Perform regression testing on new features; Learn and implement basic test automation with Selenium; Collaborate with developers to understand requirements; Participate in daily standup meetings; Track and verify bug fixes")
-                .requirements("0-2 years of QA experience or recent graduate; Basic understanding of software testing principles; Familiarity with bug tracking tools (Jira, Bugzilla); Knowledge of Selenium or willingness to learn; Strong attention to detail; Good communication skills; Bachelor's degree preferred but not required")
+                .description("Entry-level QA position focusing on manual testing and basic automation.")
+                .responsibilities(
+                        "Execute manual test cases; " +
+                                "Report bugs; " +
+                                "Maintain test documentation; " +
+                                "Assist with regression testing"
+                )
+                .requirements(
+                        "Basic knowledge of software testing; " +
+                                "Attention to detail; " +
+                                "Willingness to learn automation"
+                )
                 .firm(firm)
+                .isSalaryDisclosed(false)
+                .salaryBottom(null)
+                .salaryTop(null)
+                .employmentType(EmploymentTypeEnum.FULL_TIME)
+                .experienceLevel(ExperienceLevelEnum.JUNIOR)
+                .workMode(WorkModeEnum.ON_SITE)
+                .skills(List.of("Manual Testing", "JIRA", "Test Cases"))
                 .isArchived(false)
                 .build();
 
-        offerManager.saveToDatabase(offer2);
+        offerManager.saveToDatabase(qaOffer);
 
-        OfferDAO offer3 = OfferDAO.builder()
+        OfferDAO fullstackOffer = OfferDAO.builder()
                 .name("Full-Stack Developer")
-                .description("A developer capable of working with React on the frontend and Node.js on the backend. Experience with CI/CD pipelines is a plus.")
-                .responsibilities("Develop and maintain web applications using React and Node.js; Build responsive user interfaces with modern CSS frameworks; Design and implement database schemas; Set up and maintain CI/CD pipelines; Write unit and integration tests; Monitor application performance and troubleshoot issues; Mentor junior developers")
-                .requirements("4+ years of full-stack development experience; Proficiency in React and Node.js; Experience with Express.js or similar frameworks; Strong understanding of JavaScript/TypeScript; Knowledge of MongoDB or PostgreSQL; Familiarity with Docker and CI/CD tools (Jenkins, GitHub Actions); Experience with AWS or Azure is a plus")
+                .description("React + Node.js developer with CI/CD experience.")
+                .responsibilities(
+                        "Develop frontend using React; " +
+                                "Build backend APIs with Node.js; " +
+                                "Maintain CI/CD pipelines; " +
+                                "Write tests"
+                )
+                .requirements(
+                        "4+ years of experience; " +
+                                "React & Node.js; " +
+                                "Docker; " +
+                                "Cloud basics"
+                )
                 .firm(firm)
+                .isSalaryDisclosed(true)
+                .salaryBottom(15000L)
+                .salaryTop(22000L)
+                .employmentType(EmploymentTypeEnum.CONTRACT)
+                .experienceLevel(ExperienceLevelEnum.SENIOR)
+                .workMode(WorkModeEnum.REMOTE)
+                .skills(List.of("React", "Node.js", "TypeScript", "Docker", "AWS"))
                 .isArchived(false)
                 .build();
 
-        offerManager.saveToDatabase(offer3);
+        offerManager.saveToDatabase(fullstackOffer);
     }
+
 
     private UserDAO createApplierUser(){
         UserDAO user = UserDAO.builder()

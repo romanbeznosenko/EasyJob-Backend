@@ -61,7 +61,12 @@ public class OfferDAO {
     @Column(name = "work_mode")
     private WorkModeEnum workMode;
 
-    @Column(name = "skills")
+    @ElementCollection
+    @CollectionTable(
+            name = "offer_skills",
+            joinColumns = @JoinColumn(name = "offer_id")
+    )
+    @Column(name = "skill")
     private List<String> skills;
 
     @CreationTimestamp
