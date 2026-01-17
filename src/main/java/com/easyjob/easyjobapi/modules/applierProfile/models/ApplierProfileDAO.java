@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ public class ApplierProfileDAO {
     private UserDAO user;
 
     @Column(name = "cv")
-    private String cv;
+    private List<String> cv;
 
     @CreationTimestamp
     @Column(name = "created_at")

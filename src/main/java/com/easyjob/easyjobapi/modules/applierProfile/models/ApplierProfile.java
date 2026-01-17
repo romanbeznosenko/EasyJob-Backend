@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @Builder
@@ -15,7 +16,7 @@ import java.time.Instant;
 public class ApplierProfile {
     private ApplierProfileId applierProfileId;
     private User user;
-    private String cv;
+    private List<String> cv;
 
     private Instant createdAt;
     private Instant updatedAt;

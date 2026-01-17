@@ -89,7 +89,10 @@ public class ApplierProfileGetService {
         return ApplierProfileResponse.builder()
                 .applierProfileId(applierProfileDAO.getId())
                 .user(userResponse)
-                .cv(storageService.createPresignedGetUrl(applierProfileDAO.getCv()))
+                .cv(
+                        applierProfileDAO.getCv() != null ? applierProfileDAO.getCv().stream()
+                                .map(storageService::createPresignedGetUrl).toList() : null
+                )
                 .education(educationResponses)
                 .project(projectResponses)
                 .skill(skillResponses)

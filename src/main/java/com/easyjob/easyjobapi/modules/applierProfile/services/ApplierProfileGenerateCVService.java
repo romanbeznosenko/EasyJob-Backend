@@ -203,12 +203,12 @@ public class ApplierProfileGenerateCVService {
                     template.name().toLowerCase(),
                     UUID.randomUUID());
 
-            if (applierProfileDAO.getCv() != null) {
-                log.info("Deleting old CV: {}", applierProfileDAO.getCv());
-                storageService.deleteFile(applierProfileDAO.getCv());
+            if (applierProfileDAO.getCv() != null){
+                applierProfileDAO.getCv().add(storageKey);
+            } else {
+                applierProfileDAO.setCv(List.of(storageKey));
             }
 
-            applierProfileDAO.setCv(storageKey);
             applierProfileManager.saveToDatabase(applierProfileDAO);
             log.info("CV reference saved to database: {}", storageKey);
 
