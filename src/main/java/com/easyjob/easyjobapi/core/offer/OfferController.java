@@ -5,6 +5,9 @@ import com.easyjob.easyjobapi.core.offer.models.OfferRequest;
 import com.easyjob.easyjobapi.core.offer.models.OfferResponse;
 import com.easyjob.easyjobapi.core.offer.services.*;
 import com.easyjob.easyjobapi.utils.CustomResponse;
+import com.easyjob.easyjobapi.utils.enums.EmploymentTypeEnum;
+import com.easyjob.easyjobapi.utils.enums.ExperienceLevelEnum;
+import com.easyjob.easyjobapi.utils.enums.WorkModeEnum;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -105,9 +109,23 @@ public class OfferController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<CustomResponse<OfferPageResponse>> getAllOffers(
             @RequestParam(name = "limit", required = false, defaultValue = "10") int limit,
-            @RequestParam(name = "page", required = false, defaultValue = "1")int page
+            @RequestParam(name = "page", required = false, defaultValue = "1")int page,
+            @RequestParam(name = "experienceLevel", required = false) List<ExperienceLevelEnum> experienceLevels,
+            @RequestParam(name = "employmentType", required = false) List<EmploymentTypeEnum> employmentTypes,
+            @RequestParam(name = "workMode", required = false) List<WorkModeEnum> workModes,
+            @RequestParam(name = "skill", required = false) List<String> skills,
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "salaryBottom", required = false) Long salaryBottom,
+            @RequestParam(name = "salaryTop", required = false) Long salaryTop
     ) {
-        OfferPageResponse response = offerGetAllService.getAllOffers(page, limit);
+        OfferPageResponse response = offerGetAllService.getAllOffers(page, limit,
+                experienceLevels,
+                employmentTypes,
+                workModes,
+                skills,
+                salaryBottom,
+                salaryTop,
+                name);
 
         return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
     }
