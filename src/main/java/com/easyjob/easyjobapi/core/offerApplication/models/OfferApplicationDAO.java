@@ -33,6 +33,9 @@ public class OfferApplicationDAO {
     @JoinColumn(name = "applier_profile_id")
     private ApplierProfileDAO applierProfile;
 
+    @Column(name = "cv")
+    private String cv;
+
     @Column(name = "status")
     private ApplicationStatusEnum status;
 

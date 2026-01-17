@@ -18,6 +18,7 @@ public class OfferApplication {
     private OfferApplicationId offerApplicationId;
     private Offer offer;
     private ApplierProfile applierProfile;
+    private String cv;
     private ApplicationStatusEnum status;
     private Boolean isOpened;
 
