@@ -4,8 +4,8 @@ import com.easyjob.easyjobapi.core.firm.models.FirmDAO;
 import com.easyjob.easyjobapi.core.offer.models.OfferDAO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,5 +31,9 @@ public class OfferManager {
 
     public Page<OfferDAO> findAll(Pageable pageable) {
         return offerRepository.findAll(pageable);
+    }
+
+    public Page<OfferDAO> findAll(Specification<OfferDAO> specification, Pageable pageable) {
+        return offerRepository.findAll(specification, pageable);
     }
 }
