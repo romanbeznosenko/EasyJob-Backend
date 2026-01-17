@@ -18,6 +18,13 @@ public class OfferBuilders {
                 .responsibilities(request.responsibilities())
                 .requirements(request.requirements())
                 .firm(firm)
+                .isSalaryDisclosed(request.isSalaryDisclosed())
+                .salaryBottom(request.salaryBottom())
+                .salaryTop(request.salaryTop())
+                .employmentType(request.employmentType())
+                .experienceLevel(request.experienceLevel())
+                .workMode(request.workMode())
+                .skills(request.skills())
                 .build();
     }
 
@@ -29,6 +36,13 @@ public class OfferBuilders {
                 .responsibilities(offer.getResponsibilities())
                 .requirements(offer.getRequirements())
                 .firm(FirmBuilders.buildResponse(offer.getFirm(), storageService, userMapper))
+                .isSalaryDisclosed(offer.getIsSalaryDisclosed())
+                .salaryBottom(offer.getSalaryBottom())
+                .salaryTop(offer.getSalaryTop())
+                .employmentType(offer.getEmploymentType())
+                .experienceLevel(offer.getExperienceLevel())
+                .workMode(offer.getWorkMode())
+                .skills(offer.getSkills())
                 .build();
     }
 }

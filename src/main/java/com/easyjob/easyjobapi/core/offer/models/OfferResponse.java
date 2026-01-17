@@ -1,9 +1,13 @@
 package com.easyjob.easyjobapi.core.offer.models;
 
 import com.easyjob.easyjobapi.core.firm.models.FirmResponse;
+import com.easyjob.easyjobapi.utils.enums.EmploymentTypeEnum;
+import com.easyjob.easyjobapi.utils.enums.ExperienceLevelEnum;
+import com.easyjob.easyjobapi.utils.enums.WorkModeEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -24,6 +28,27 @@ public record OfferResponse(
         String requirements,
 
         @Schema(description = "Offer's firm", implementation = FirmResponse.class)
-        FirmResponse firm
+        FirmResponse firm,
+
+        @Schema(description = "Is salary disclosed", example = "false")
+        Boolean isSalaryDisclosed,
+
+        @Schema(description = "Offer's bottom salary", example = "1000")
+        Long salaryBottom,
+
+        @Schema(description = "Offer's top salary", example = "15000")
+        Long salaryTop,
+
+        @Schema(description = "Offer's employment type", example = "CONTRACT")
+        EmploymentTypeEnum employmentType,
+
+        @Schema(description = "Offer's experience level", example = "JUNIOR")
+        ExperienceLevelEnum experienceLevel,
+
+        @Schema(description = "Offer's work mode", example = "ON_SITE")
+        WorkModeEnum workMode,
+
+        @Schema(description = "Offer's required skills")
+        List<String> skills
 ) {
 }

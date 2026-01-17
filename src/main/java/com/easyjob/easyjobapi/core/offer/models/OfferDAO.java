@@ -1,12 +1,16 @@
 package com.easyjob.easyjobapi.core.offer.models;
 
 import com.easyjob.easyjobapi.core.firm.models.FirmDAO;
+import com.easyjob.easyjobapi.utils.enums.EmploymentTypeEnum;
+import com.easyjob.easyjobapi.utils.enums.ExperienceLevelEnum;
+import com.easyjob.easyjobapi.utils.enums.WorkModeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -38,6 +42,27 @@ public class OfferDAO {
     @JoinColumn(name = "firm_id")
     @ManyToOne
     private FirmDAO firm;
+
+    @Column(name = "is_salary_disclosed")
+    private Boolean isSalaryDisclosed;
+
+    @Column(name = "salary_bottom")
+    private Long salaryBottom;
+
+    @Column(name = "salary_top")
+    private Long salaryTop;
+
+    @Column(name = "employment_type")
+    private EmploymentTypeEnum employmentType;
+
+    @Column(name = "experience_level")
+    private ExperienceLevelEnum experienceLevel;
+
+    @Column(name = "work_mode")
+    private WorkModeEnum workMode;
+
+    @Column(name = "skills")
+    private List<String> skills;
 
     @CreationTimestamp
     @Column(name = "created_at")
