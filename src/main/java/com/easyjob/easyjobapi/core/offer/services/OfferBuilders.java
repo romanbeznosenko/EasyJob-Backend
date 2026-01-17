@@ -25,6 +25,7 @@ public class OfferBuilders {
                 .experienceLevel(request.experienceLevel())
                 .workMode(request.workMode())
                 .skills(request.skills())
+                .isArchived(false)
                 .build();
     }
 

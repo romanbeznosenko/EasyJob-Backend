@@ -31,12 +31,10 @@ public record OfferRequest(
         @Schema(description = "Is salary disclosed", example = "true")
         Boolean isSalaryDisclosed,
 
-        @NotNull
         @Positive
         @Schema(description = "Offer's bottom salary", example = "1000")
         Long salaryBottom,
 
-        @NotNull
         @Positive
         @Schema(description = "Offer's top salary", example = "15000")
         Long salaryTop,
