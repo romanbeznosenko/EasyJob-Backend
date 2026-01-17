@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/firm")
@@ -26,6 +27,7 @@ public class FirmController {
     private final FirmEditRequest firmEditRequest;
     private final FirmUploadLogoService firmUploadLogoService;
     private final FirmCheckExistenceService firmCheckExistenceService;
+    private final FirmGetByIdService firmGetByIdService;
 
     private final static String DEFAULT_RESPONSE = "Operation successful!";
 
@@ -51,6 +53,20 @@ public class FirmController {
     @PreAuthorize("permitAll()")
     public ResponseEntity<CustomResponse<FirmResponse>> getFirm(){
         FirmResponse response = firmGetService.getUserFirm();
+
+        return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/{firmId}")
+    @Operation(
+            description = "Get firm by ID",
+            summary = "Get firm by ID"
+    )
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<CustomResponse<FirmResponse>> getFirmById(
+            @PathVariable(name = "firmId") UUID firmId
+    ) {
+        FirmResponse response = firmGetByIdService.getFirmById(firmId);
 
         return new ResponseEntity<>(new CustomResponse<>(response, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
     }
