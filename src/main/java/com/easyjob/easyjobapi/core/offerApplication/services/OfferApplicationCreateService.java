@@ -10,6 +10,9 @@ import com.easyjob.easyjobapi.core.user.models.UserDAO;
 import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileManager;
 import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileNotFoundException;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileDAO;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.management.CVManager;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.management.CVNotFoundException;
+import com.easyjob.easyjobapi.modules.applierProfile.submodules.cv.models.CVDAO;
 import com.easyjob.easyjobapi.utils.enums.UserTypeEnum;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +29,9 @@ public class OfferApplicationCreateService {
     private final OfferApplicationManager offerApplicationManager;
     private final OfferManager offerManager;
     private final ApplierProfileManager applierProfileManager;
+    private final CVManager cvManager;
 
-    public void create(UUID offerId){
+    public void create(UUID offerId, UUID CVId) {
         log.info("Creating Offer Application");
 
         UserDAO userDAO = (UserDAO) request.getAttribute("user");
@@ -45,6 +49,14 @@ public class OfferApplicationCreateService {
                 offerDAO,
                 applierProfileDAO
         );
+
+        CVDAO cvDAO = cvManager.findById(CVId)
+                        .orElseThrow(CVNotFoundException::new);
+        if (!cvDAO.getApplierProfile().equals(applierProfileDAO)) {
+            throw new CVNotFoundException();
+        }
+
+        offerApplicationDAO.setCv(cvDAO.getStorageKey());
 
         offerApplicationManager.saveToDatabase(offerApplicationDAO);
     }

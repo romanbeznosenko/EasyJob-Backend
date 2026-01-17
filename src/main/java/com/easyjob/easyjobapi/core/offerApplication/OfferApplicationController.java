@@ -33,9 +33,10 @@ public class OfferApplicationController {
     )
     @PreAuthorize("permitAll()")
     public ResponseEntity<CustomResponse<Void>> applyOffer(
-            @PathVariable(name = "offerId")UUID offerId
+            @PathVariable(name = "offerId")UUID offerId,
+            @RequestParam(name = "cv") UUID CVId
     ) {
-        offerApplicationCreateService.create(offerId);
+        offerApplicationCreateService.create(offerId, CVId);
 
         return new ResponseEntity<>(new CustomResponse<>(null, DEFAULT_RESPONSE, HttpStatus.OK),
                 HttpStatus.OK);
