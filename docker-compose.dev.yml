@@ -46,7 +46,7 @@ services:
 
   easyjob-app:
     restart: unless-stopped
-    container_name: schoolmoney-app
+    container_name: easyjob-app
     build:
       context: .
       dockerfile: Dockerfile
