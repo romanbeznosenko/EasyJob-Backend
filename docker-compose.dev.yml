@@ -64,11 +64,13 @@ services:
       - MAILGUN_CLIENT_DOMAIN=${MAILGUN_CLIENT_DOMAIN}
       - MAILGUN_FROM=${MAILGUN_FROM}
 
-      # S3 / MinIO
+      # S3 / MinIO Configuration
       - STORAGE_S3_BUCKET_NAME=${STORAGE_S3_BUCKET_NAME}
-      - STORAGE_S3_SECRET_KEY=${STORAGE_S3_SECRET_KEY}
       - STORAGE_S3_ACCESS_KEY=${STORAGE_S3_ACCESS_KEY}
+      - STORAGE_S3_SECRET_KEY=${STORAGE_S3_SECRET_KEY}
+      - STORAGE_S3_ENDPOINT=http://easyjob-minio:9000
 
+      # Anthropic Configuration
       - ANTHROPIC_KEY=${ANTHROPIC_KEY}
     expose:
       - "8080"
