@@ -53,14 +53,19 @@ public class OfferSpecifications {
 
             Join<OfferDAO, String> skillsJoin = root.join("skills");
 
+            List<Predicate> skillPredicates = skills.stream()
+                    .map(skill -> cb.like(cb.lower(skillsJoin), "%" + skill.toLowerCase() + "%"))
+                    .toList();
+
             Expression<Long> skillCount = cb.countDistinct(skillsJoin);
 
             query.groupBy(root.get("id"));
             query.having(cb.equal(skillCount, (long) skills.size()));
 
-            return skillsJoin.in(skills);
+            return cb.and(skillPredicates.toArray(new Predicate[0]));
         };
     }
+
 
     public static Specification<OfferDAO> bySalaryRange(Long minSalary, Long maxSalary) {
         return (root, query, cb) -> {
