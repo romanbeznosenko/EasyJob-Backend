@@ -51,31 +51,25 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      # Database Configuration
+      # Database
       - SPRING_DATASOURCE_URL=jdbc:postgresql://easyjob-psql:5432/${POSTGRES_DB:?err}
-      - POSTGRES_URL=jdbc:postgresql://easyjob-psql:5432/${POSTGRES_DB:?err}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:?err}
-      - POSTGRES_USER=${POSTGRES_USER:?err}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:?err}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?err}
 
-      # CORS Configuration
+      # CORS
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
 
-      # Mailgun Configuration
+      # Mailgun
       - MAILGUN_API_KEY=${MAILGUN_API_KEY}
       - MAILGUN_CLIENT_DOMAIN=${MAILGUN_CLIENT_DOMAIN}
       - MAILGUN_FROM=${MAILGUN_FROM}
-      - MAIL_FRONTEND_URL=${MAIL_FRONTEND_URL}
 
-      # S3 / MinIO Configuration
+      # S3 / MinIO
       - STORAGE_S3_BUCKET_NAME=${STORAGE_S3_BUCKET_NAME}
       - STORAGE_S3_SECRET_KEY=${STORAGE_S3_SECRET_KEY}
       - STORAGE_S3_ACCESS_KEY=${STORAGE_S3_ACCESS_KEY}
-      - STORAGE_S3_ENDPOINT=http://easyjob-minio:9000
-      - MINIO_ENDPOINT=http://easyjob-minio:9000
-      - MINIO_ACCESS_KEY=${STORAGE_S3_ACCESS_KEY}
-      - MINIO_SECRET_KEY=${STORAGE_S3_SECRET_KEY}
+
+      - ANTHROPIC_KEY=${ANTHROPIC_KEY}
     expose:
       - "8080"
     depends_on:
