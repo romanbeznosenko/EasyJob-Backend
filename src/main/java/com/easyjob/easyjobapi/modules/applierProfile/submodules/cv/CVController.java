@@ -71,6 +71,4 @@ public class CVController {
 
         return new ResponseEntity<>(new CustomResponse<>(null, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
     }
-
-
 }

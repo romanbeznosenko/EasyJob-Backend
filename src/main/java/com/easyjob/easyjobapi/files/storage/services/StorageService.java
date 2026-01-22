@@ -1,9 +1,11 @@
 package com.easyjob.easyjobapi.files.storage.services;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
@@ -126,4 +128,8 @@ public class StorageService {
         }
     }
 
+    public String generateStorageKey(UUID id, MultipartFile file, String folder) {
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+        return "%s/%s/%s.%s".formatted(id, folder, UUID.randomUUID(), fileExtension);
+    }
 }
