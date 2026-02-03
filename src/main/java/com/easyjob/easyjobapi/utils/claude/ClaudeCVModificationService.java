@@ -10,6 +10,7 @@ import com.anthropic.models.messages.MessageCreateParams;
 import com.anthropic.models.messages.Model;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileCVModificationResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -21,9 +22,12 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ClaudeCVModificationService {
     @Value("${anthropic.api.key}")
     private String ANTHROPIC_API_KEY;
+
+    private final ObjectMapper objectMapper;
 
     @Async
     public CompletableFuture<ApplierProfileCVModificationResponse> modifyCV(
@@ -76,11 +80,13 @@ public class ClaudeCVModificationService {
 
             log.info("Received response from Claude AI API");
 
-            String responseString = cleanJsonResponse(responseBuilder.toString());
+            String rawResponse = responseBuilder.toString();
+            log.debug("Raw response from Claude: {}", rawResponse);
+
+            String responseString = extractAndCleanJson(rawResponse);
             log.debug("Cleaned JSON response: {}", responseString);
 
-            ObjectMapper mapper = new ObjectMapper();
-            ApplierProfileCVModificationResponse cvResponse = mapper.readValue(
+            ApplierProfileCVModificationResponse cvResponse = objectMapper.readValue(
                     responseString,
                     ApplierProfileCVModificationResponse.class
             );
@@ -110,11 +116,30 @@ public class ClaudeCVModificationService {
         return actualFilename;
     }
 
-    private String cleanJsonResponse(String response) {
-        return response
-                .replaceAll("```json\\s*", "")
-                .replaceAll("```\\s*", "")
-                .replaceAll("^json\\s*", "")
-                .trim();
+    private String extractAndCleanJson(String response) {
+        if (response == null || response.isEmpty()) {
+            throw new IllegalArgumentException("Empty response from Claude");
+        }
+
+        log.debug("First 200 chars of response: {}",
+                response.length() > 200 ? response.substring(0, 200) : response);
+
+        String cleaned = response;
+
+        cleaned = cleaned.replaceAll("```json\\s*", "");
+        cleaned = cleaned.replaceAll("```\\s*", "");
+        cleaned = cleaned.replaceAll("^json\\s*", "");
+
+        int jsonStart = cleaned.indexOf('{');
+        int jsonEnd = cleaned.lastIndexOf('}');
+
+        if (jsonStart != -1 && jsonEnd != -1 && jsonEnd > jsonStart) {
+            cleaned = cleaned.substring(jsonStart, jsonEnd + 1);
+            log.debug("Extracted JSON from position {} to {}", jsonStart, jsonEnd);
+        } else {
+            log.warn("Could not find JSON boundaries in response");
+        }
+
+        return cleaned.trim();
     }
 }

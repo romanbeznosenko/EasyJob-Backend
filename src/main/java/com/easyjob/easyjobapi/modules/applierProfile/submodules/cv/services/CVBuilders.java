@@ -34,4 +34,16 @@ public class CVBuilders {
                 .createdAt(cvDAO.getCreatedAt())
                 .build();
     }
+
+    public static CV build(ApplierProfile applierProfile, String fileName, String storageKey, String thumbnail) {
+        return CV.builder()
+                .cvId(CVId.of(null))
+                .applierProfile(applierProfile)
+                .storageKey(storageKey)
+                .filename(fileName)
+                .thumbnail(thumbnail)
+                .processStatus(ProcessStatusEnum.PENDING)
+                .isArchived(false)
+                .build();
+    }
 }

@@ -1,10 +1,12 @@
 package com.easyjob.easyjobapi.core.offerApplication;
 
+import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplicationModifyCVRequest;
 import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplicationPageResponse;
 import com.easyjob.easyjobapi.core.offerApplication.services.*;
 import com.easyjob.easyjobapi.utils.CustomResponse;
 import com.easyjob.easyjobapi.utils.enums.ApplicationStatusEnum;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ public class OfferApplicationController {
     private final OfferApplicationListService offerApplicationListService;
     private final OfferApplicationOpenService offerApplicationOpenService;
     private final OfferApplicationListFirmService offerApplicationListFirmService;
+    private final OfferApplicationModifyCVService offerApplicationModifyCVService;
 
     private final static String DEFAULT_RESPONSE = "Operation successful.";
 
@@ -119,5 +122,20 @@ public class OfferApplicationController {
         offerApplicationOpenService.open(offerApplicationId);
 
         return new ResponseEntity<>(new CustomResponse<>(null, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
+    }
+
+    @PostMapping("/offer/{offerId}/modify-cv")
+    @Operation(
+            description = "Modify CV for offer",
+            summary = "Modify CV for offer"
+    )
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<CustomResponse<Void>> modifyCV(
+            @PathVariable(name = "offerId") UUID offerId,
+            @RequestBody @Valid OfferApplicationModifyCVRequest request
+    ) {
+        offerApplicationModifyCVService.modifyCV(request, offerId);
+
+        return new  ResponseEntity<>(new CustomResponse<>(null, DEFAULT_RESPONSE, HttpStatus.OK), HttpStatus.OK);
     }
 }
