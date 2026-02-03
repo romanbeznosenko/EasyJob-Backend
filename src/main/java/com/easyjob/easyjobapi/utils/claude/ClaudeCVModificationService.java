@@ -2,22 +2,19 @@ package com.easyjob.easyjobapi.utils.claude;
 
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
-import com.anthropic.core.MultipartField;
-import com.anthropic.models.beta.AnthropicBeta;
-import com.anthropic.models.beta.files.FileMetadata;
-import com.anthropic.models.beta.files.FileUploadParams;
 import com.anthropic.models.messages.MessageCreateParams;
 import com.anthropic.models.messages.Model;
 import com.easyjob.easyjobapi.modules.applierProfile.models.ApplierProfileCVModificationResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -44,34 +41,26 @@ public class ClaudeCVModificationService {
             String sanitizedFilename = sanitizeFilename(cvFilename);
             log.info("Sanitized filename: {} -> {}", cvFilename, sanitizedFilename);
 
-            log.info("Uploading CV file to Anthropic Files API");
-            InputStream cvInputStream = new ByteArrayInputStream(cvBytes);
+            log.info("Extracting text from PDF, size: {} bytes", cvBytes.length);
+            String cvText = extractTextFromPDF(cvBytes);
+            log.info("Extracted text length: {} characters", cvText.length());
+            log.info("=== EXTRACTED CV TEXT START ===");
+            log.info(cvText);
+            log.info("=== EXTRACTED CV TEXT END ===");
 
-            FileUploadParams uploadParams = FileUploadParams.builder()
-                    .file(MultipartField.<InputStream>builder()
-                            .value(cvInputStream)
-                            .filename(sanitizedFilename)
-                            .contentType("application/pdf")
-                            .build())
-                    .addBeta(AnthropicBeta.FILES_API_2025_04_14)
-                    .build();
-
-            FileMetadata fileMetadata = client.beta().files().upload(uploadParams);
-            log.info("CV file uploaded successfully with ID: {}", fileMetadata.id());
-
-            String enrichedPrompt = String.format(
-                    "I have attached a CV file (ID: %s). %s",
-                    fileMetadata.id(),
+            String fullPrompt = String.format(
+                    "Here is the CV content extracted from the PDF:\n\n%s\n\n%s",
+                    cvText,
                     prompt
             );
 
             MessageCreateParams createParams = MessageCreateParams.builder()
                     .model(Model.CLAUDE_SONNET_4_20250514)
                     .maxTokens(4096)
-                    .addUserMessage(enrichedPrompt)
+                    .addUserMessage(fullPrompt)
                     .build();
 
-            log.info("Sending request to Claude API");
+            log.info("Sending request to Claude API with CV text");
 
             StringBuilder responseBuilder = new StringBuilder();
             client.messages().create(createParams).content().stream()
@@ -81,22 +70,39 @@ public class ClaudeCVModificationService {
             log.info("Received response from Claude AI API");
 
             String rawResponse = responseBuilder.toString();
-            log.debug("Raw response from Claude: {}", rawResponse);
 
             String responseString = extractAndCleanJson(rawResponse);
-            log.debug("Cleaned JSON response: {}", responseString);
 
             ApplierProfileCVModificationResponse cvResponse = objectMapper.readValue(
                     responseString,
                     ApplierProfileCVModificationResponse.class
             );
 
-            log.info("CV modification completed successfully");
             return CompletableFuture.completedFuture(cvResponse);
 
         } catch (Exception e) {
             log.error("Failed to modify CV with Claude AI", e);
+            log.error("Exception type: {}", e.getClass().getName());
+            log.error("Exception message: {}", e.getMessage());
+            if (e.getCause() != null) {
+                log.error("Cause: {}", e.getCause().getMessage());
+            }
             return CompletableFuture.failedFuture(e);
+        }
+    }
+
+    private String extractTextFromPDF(byte[] pdfBytes) throws Exception {
+        try (ByteArrayInputStream inputStream = new ByteArrayInputStream(pdfBytes);
+             PDDocument document = PDDocument.load(inputStream)) {
+
+            PDFTextStripper stripper = new PDFTextStripper();
+            String text = stripper.getText(document);
+
+            if (text == null || text.trim().isEmpty()) {
+                throw new IllegalArgumentException("Could not extract text from PDF - file may be empty or image-based");
+            }
+
+            return text.trim();
         }
     }
 
@@ -121,8 +127,9 @@ public class ClaudeCVModificationService {
             throw new IllegalArgumentException("Empty response from Claude");
         }
 
-        log.debug("First 200 chars of response: {}",
-                response.length() > 200 ? response.substring(0, 200) : response);
+        log.info("Starting JSON extraction...");
+        log.info("Original response starts with: {}",
+                response.length() > 100 ? response.substring(0, 100) : response);
 
         String cleaned = response;
 
@@ -135,9 +142,12 @@ public class ClaudeCVModificationService {
 
         if (jsonStart != -1 && jsonEnd != -1 && jsonEnd > jsonStart) {
             cleaned = cleaned.substring(jsonStart, jsonEnd + 1);
-            log.debug("Extracted JSON from position {} to {}", jsonStart, jsonEnd);
+            log.info("Extracted JSON from position {} to {} (length: {} chars)",
+                    jsonStart, jsonEnd, cleaned.length());
         } else {
             log.warn("Could not find JSON boundaries in response");
+            log.warn("First '{' at position: {}", jsonStart);
+            log.warn("Last '}' at position: {}", jsonEnd);
         }
 
         return cleaned.trim();
