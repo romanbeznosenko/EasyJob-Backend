@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record OfferApplicationModifyCVRequest(
-        @NotBlank
+        @NotNull
         @Schema(description = "CV's id", example = "1")
         UUID cvId,
 
