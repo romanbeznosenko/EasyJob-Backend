@@ -13,19 +13,11 @@ import java.util.stream.Collectors;
 
 public class EvaluationPromptBuilder {
     public static String createPrompt(
-            OfferDAO offer,
-            List<SkillDAO> skills,
-            List<WorkExperienceDAO> workExperiences,
-            List<EducationDAO> educations,
-            List<ProjectDAO> projects
+            OfferDAO offer
     ) {
-        String skillsSection = formatSkills(skills);
-        String experienceSection = formatWorkExperience(workExperiences);
-        String educationSection = formatEducation(educations);
-        String projectsSection = formatProjects(projects);
-
         return """
-            You are an expert HR recruiter and technical hiring manager. Evaluate the following candidate for the job position with detailed analysis.
+            You are an expert HR recruiter and technical hiring manager. You have been provided with a candidate's CV/resume in PDF format. 
+            Parse and analyze the CV to evaluate the candidate for the job position with detailed analysis.
             
             === JOB POSITION ===
             Title: %s
@@ -39,47 +31,40 @@ public class EvaluationPromptBuilder {
             Responsibilities:
             %s
             
-            === CANDIDATE PROFILE ===
-            
-            Skills:
-            %s
-            
-            Work Experience:
-            %s
-            
-            Education:
-            %s
-            
-            Projects:
-            %s
-            
             === EVALUATION TASK ===
             
-            Provide a comprehensive evaluation with:
+            First, extract the following information from the provided CV:
+            - Skills and technical competencies
+            - Work experience (roles, companies, dates, responsibilities)
+            - Education (degrees, institutions, dates, GPA if available)
+            - Projects (names, descriptions, technologies used)
+            - Any other relevant information (certifications, languages, achievements)
+            
+            Then, provide a comprehensive evaluation with:
             
             1. **Overall Match Score** (0-100): Single numeric score for overall fit
             
             2. **Skills Analysis** (0-100):
                - List required skills from job posting
-               - Identify candidate's matching skills
+               - Identify candidate's matching skills from CV
                - Identify missing skills
                - Note transferable skills
             
             3. **Experience Evaluation** (0-100):
                - Assess if candidate meets experience requirements
-               - Evaluate relevance of past roles
-               - Consider career progression
+               - Evaluate relevance of past roles from CV
+               - Consider career progression shown in CV
             
             4. **Education Assessment** (0-100):
-               - Check educational background vs requirements
+               - Check educational background from CV vs requirements
                - Consider field of study relevance
             
             5. **Projects Relevance** (0-100):
                - Evaluate project alignment with responsibilities
-               - Assess technical complexity
+               - Assess technical complexity of projects mentioned in CV
             
             6. **Key Strengths** (3-5 bullet points):
-               - Specific advantages this candidate brings
+               - Specific advantages this candidate brings based on CV
                - Areas exceeding requirements
             
             7. **Key Weaknesses/Gaps** (3-5 bullet points):
@@ -87,11 +72,11 @@ public class EvaluationPromptBuilder {
                - Areas for development
             
             8. **Cultural and Soft Skills Indicators**:
-               - Communication style from profile
-               - Collaboration indicators
+               - Communication style from CV
+               - Collaboration indicators from experience descriptions
             
             9. **Growth Potential**:
-               - Learning trajectory
+               - Learning trajectory evident from CV
                - Ability to grow into role
             
             10. **Hiring Recommendation**:
@@ -100,13 +85,15 @@ public class EvaluationPromptBuilder {
                 - MODERATE_MATCH (40-59)
                 - WEAK_MATCH (0-39)
             
-            11. **Interview Focus Areas** (3-5 topics)
+            11. **Interview Focus Areas** (3-5 topics):
+                - Specific areas to probe based on CV information
             
-            12. **Detailed Summary** (2-3 paragraphs)
+            12. **Detailed Summary** (2-3 paragraphs):
+                - Comprehensive evaluation based on CV content
             
             === OUTPUT FORMAT ===
             
-            Respond ONLY with valid JSON:
+            Respond ONLY with valid JSON (no markdown code blocks, no additional text):
             
             {
               "overallScore": <number 0-100>,
@@ -121,38 +108,34 @@ public class EvaluationPromptBuilder {
                 "transferableSkills": ["skill4"]
               },
               "strengths": [
-                "First strength with details",
-                "Second strength with details",
-                "Third strength with details"
+                "First strength with specific details from CV",
+                "Second strength with specific details from CV",
+                "Third strength with specific details from CV"
               ],
               "weaknesses": [
                 "First gap with details",
                 "Second gap with details"
               ],
-              "culturalFit": "Assessment of soft skills",
-              "growthPotential": "Assessment of learning ability",
+              "culturalFit": "Assessment of soft skills based on CV",
+              "growthPotential": "Assessment of learning ability based on CV progression",
               "recommendation": "STRONG_MATCH",
               "interviewFocusAreas": [
-                "Topic 1",
-                "Topic 2",
-                "Topic 3"
+                "Topic 1 based on CV",
+                "Topic 2 based on CV",
+                "Topic 3 based on CV"
               ],
-              "detailedSummary": "Comprehensive evaluation summary"
+              "detailedSummary": "Comprehensive evaluation summary based on CV analysis"
             }
             
-            Be objective, fair, and base scores on concrete evidence.
+            Be objective, fair, and base all scores and assessments on concrete evidence found in the CV.
+            If certain information is missing from the CV, note this in your evaluation.
             """.formatted(
                 offer.getName(),
                 offer.getDescription() != null ? offer.getDescription() : "Not specified",
                 offer.getRequirements() != null ? offer.getRequirements() : "Not specified",
-                offer.getResponsibilities() != null ? offer.getResponsibilities() : "Not specified",
-                skillsSection,
-                experienceSection,
-                educationSection,
-                projectsSection
+                offer.getResponsibilities() != null ? offer.getResponsibilities() : "Not specified"
         );
     }
-
 
     private static String formatSkills(List<SkillDAO> skills) {
         if (skills == null || skills.isEmpty()) {

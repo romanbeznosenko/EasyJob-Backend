@@ -2,25 +2,14 @@ package com.easyjob.easyjobapi.core.offerApplicationEvaluation.services;
 
 import com.easyjob.easyjobapi.core.firm.management.FirmOwnerMismatchException;
 import com.easyjob.easyjobapi.core.offerApplication.management.OfferApplicationManager;
-import com.easyjob.easyjobapi.core.offerApplication.management.OfferApplicationMapper;
-import com.easyjob.easyjobapi.core.offerApplication.management.OfferApplicationNotFoundException;
+ import com.easyjob.easyjobapi.core.offerApplication.management.OfferApplicationNotFoundException;
 import com.easyjob.easyjobapi.core.offerApplication.models.OfferApplicationDAO;
 import com.easyjob.easyjobapi.core.offerApplicationEvaluation.management.OfferApplicationEvaluationManager;
-import com.easyjob.easyjobapi.core.offerApplicationEvaluation.management.OfferApplicationEvaluationMapper;
 import com.easyjob.easyjobapi.core.offerApplicationEvaluation.models.OfferApplicationEvaluationAIResponse;
 import com.easyjob.easyjobapi.core.offerApplicationEvaluation.models.OfferApplicationEvaluationDAO;
 import com.easyjob.easyjobapi.core.user.management.UserNotRecruiterException;
 import com.easyjob.easyjobapi.core.user.models.UserDAO;
-import com.easyjob.easyjobapi.modules.applierProfile.management.ApplierProfileMapper;
-import com.easyjob.easyjobapi.modules.applierProfile.services.ApplierProfileBuilders;
-import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.management.EducationManager;
-import com.easyjob.easyjobapi.modules.applierProfile.submodules.education.models.EducationDAO;
-import com.easyjob.easyjobapi.modules.applierProfile.submodules.project.management.ProjectManager;
-import com.easyjob.easyjobapi.modules.applierProfile.submodules.project.models.ProjectDAO;
-import com.easyjob.easyjobapi.modules.applierProfile.submodules.skill.management.SkillManager;
-import com.easyjob.easyjobapi.modules.applierProfile.submodules.skill.models.SkillDAO;
-import com.easyjob.easyjobapi.modules.applierProfile.submodules.workExperience.management.WorkExperienceManager;
-import com.easyjob.easyjobapi.modules.applierProfile.submodules.workExperience.models.WorkExperienceDAO;
+import com.easyjob.easyjobapi.files.storage.services.StorageService;
 import com.easyjob.easyjobapi.utils.EvaluationPromptBuilder;
 import com.easyjob.easyjobapi.utils.claude.ClaudeEvaluateCandidateService;
 import com.easyjob.easyjobapi.utils.enums.ProcessStatusEnum;
@@ -34,7 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.UUID;
 
 @Service
@@ -43,16 +32,10 @@ import java.util.UUID;
 public class OfferApplicationEvaluationEvaluateService {
     private final HttpServletRequest httpServletRequest;
     private final OfferApplicationManager offerApplicationManager;
-    private final OfferApplicationMapper offerApplicationMapper;
-    private final ApplierProfileMapper applierProfileMapper;
     private final OfferApplicationEvaluationManager offerApplicationEvaluationManager;
-    private final OfferApplicationEvaluationMapper offerApplicationEvaluationMapper;
-    private final WorkExperienceManager workExperienceManager;
-    private final ProjectManager projectManager;
-    private final SkillManager skillManager;
-    private final EducationManager educationManager;
     private final ClaudeEvaluateCandidateService claudeEvaluateCandidateService;
     private final ObjectMapper objectMapper;
+    private final StorageService storageService;
 
     @Transactional
     public void evaluate(UUID id) {
@@ -68,6 +51,15 @@ public class OfferApplicationEvaluationEvaluateService {
 
         if (!offerApplicationDAO.getOffer().getFirm().getUser().equals(userDAO)) {
             throw new FirmOwnerMismatchException();
+        }
+
+        byte[] cvBytes;
+        try (var cvStream = storageService.getFile(offerApplicationDAO.getCv())) {
+            cvBytes = cvStream.readAllBytes();
+            log.info("CV file loaded successfully, size: {} bytes", cvBytes.length);
+        } catch (IOException e) {
+            log.error("Failed to read CV file", e);
+            throw new RuntimeException("Failed to read CV file", e);
         }
 
         OfferApplicationEvaluationDAO existingEvaluation = offerApplicationEvaluationManager.findByOfferAndApplierProfile(
@@ -103,31 +95,22 @@ public class OfferApplicationEvaluationEvaluateService {
 
         log.info("Created evaluation with id: {} and status: PENDING", evaluationId);
 
-        processEvaluationAsync(evaluationId, id);
+        processEvaluationAsync(evaluationId, id, cvBytes, offerApplicationDAO.getCv());
     }
 
-    private void processEvaluationAsync(UUID evaluationId, UUID offerApplicationId) {
+    private void processEvaluationAsync(UUID evaluationId, UUID offerApplicationId, byte[] cvBytes, String cvFilename) {
         log.info("Starting async evaluation process for evaluation id: {}", evaluationId);
 
         OfferApplicationDAO offerApplicationDAO = offerApplicationManager.findById(offerApplicationId)
                 .orElseThrow(() -> new RuntimeException("Offer application not found: " + offerApplicationId));
 
-        List<WorkExperienceDAO> workExperiences = ApplierProfileBuilders.buildWorkExperiences(offerApplicationDAO.getApplierProfile(), workExperienceManager);
-        List<EducationDAO> educations = ApplierProfileBuilders.buildEducations(offerApplicationDAO.getApplierProfile(), educationManager);
-        List<ProjectDAO> projects = ApplierProfileBuilders.buildProjects(offerApplicationDAO.getApplierProfile(), projectManager);
-        List<SkillDAO> skills = ApplierProfileBuilders.buildSkills(offerApplicationDAO.getApplierProfile(), skillManager);
-
         String prompt = EvaluationPromptBuilder.createPrompt(
-                offerApplicationDAO.getOffer(),
-                skills,
-                workExperiences,
-                educations,
-                projects
+                offerApplicationDAO.getOffer()
         );
 
         updateEvaluationStatus(evaluationId, ProcessStatusEnum.PROCESSING);
 
-        claudeEvaluateCandidateService.evaluateCandidate(prompt)
+        claudeEvaluateCandidateService.evaluateCandidate(prompt, cvBytes, cvFilename)
                 .thenAccept(aiResponse -> {
                     log.info("AI evaluation completed for evaluation id: {}", evaluationId);
                     handleEvaluationSuccess(evaluationId, aiResponse);

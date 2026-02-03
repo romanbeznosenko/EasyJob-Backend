@@ -2,6 +2,10 @@ package com.easyjob.easyjobapi.utils.claude;
 
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.core.MultipartField;
+import com.anthropic.models.beta.AnthropicBeta;
+import com.anthropic.models.beta.files.FileMetadata;
+import com.anthropic.models.beta.files.FileUploadParams;
 import com.anthropic.models.messages.MessageCreateParams;
 import com.anthropic.models.messages.Model;
 import com.easyjob.easyjobapi.core.offerApplicationEvaluation.models.OfferApplicationEvaluationAIResponse;
@@ -12,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -25,18 +31,52 @@ public class ClaudeEvaluateCandidateService {
     private final ObjectMapper objectMapper;
 
     @Async
-    public CompletableFuture<OfferApplicationEvaluationAIResponse> evaluateCandidate(String prompt) {
-        log.info("Claude AI Service starting evaluation");
+    public CompletableFuture<OfferApplicationEvaluationAIResponse> evaluateCandidate(
+            String prompt,
+            byte[] cvBytes,
+            String cvFilename
+    ) {
+        log.info("Claude AI Service starting evaluation with CV file: {}", cvFilename);
         try {
             AnthropicClient client = AnthropicOkHttpClient.builder()
                     .apiKey(ANTHROPIC_API_KEY)
                     .build();
 
+            // Sanitize filename - extract only the actual filename, not the full path
+            String sanitizedFilename = sanitizeFilename(cvFilename);
+            log.info("Sanitized filename: {} -> {}", cvFilename, sanitizedFilename);
+
+            // Step 1: Upload the CV file to Anthropic using InputStream
+            log.info("Uploading CV file to Anthropic Files API");
+
+            InputStream cvInputStream = new ByteArrayInputStream(cvBytes);
+
+            FileUploadParams uploadParams = FileUploadParams.builder()
+                    .file(MultipartField.<InputStream>builder()
+                            .value(cvInputStream)
+                            .filename(sanitizedFilename)
+                            .contentType("application/pdf")
+                            .build())
+                    .addBeta(AnthropicBeta.FILES_API_2025_04_14)
+                    .build();
+
+            FileMetadata fileMetadata = client.beta().files().upload(uploadParams);
+            log.info("CV file uploaded successfully with ID: {}", fileMetadata.id());
+
+            // Step 2: Create message with file reference
+            String enrichedPrompt = String.format(
+                    "I have attached a CV file (ID: %s). %s",
+                    fileMetadata.id(),
+                    prompt
+            );
+
             MessageCreateParams createParams = MessageCreateParams.builder()
                     .model(Model.CLAUDE_SONNET_4_20250514)
                     .maxTokens(4096)
-                    .addUserMessage(prompt)
+                    .addUserMessage(enrichedPrompt)
                     .build();
+
+            log.info("Sending request to Claude API with file reference");
 
             StringBuilder responseBuilder = new StringBuilder();
             client.messages().create(createParams).content().stream()
@@ -60,6 +100,26 @@ public class ClaudeEvaluateCandidateService {
             log.error("Failed to evaluate candidate with Claude AI", e);
             return CompletableFuture.failedFuture(e);
         }
+    }
+
+    private String sanitizeFilename(String filename) {
+        if (filename == null || filename.isEmpty()) {
+            return "cv.pdf";
+        }
+
+        // Extract just the filename if it's a path (contains /)
+        String[] parts = filename.split("/");
+        String actualFilename = parts[parts.length - 1];
+
+        // Remove any remaining forbidden characters and ensure it ends with .pdf
+        actualFilename = actualFilename.replaceAll("[^a-zA-Z0-9._-]", "_");
+
+        // Ensure it has .pdf extension
+        if (!actualFilename.toLowerCase().endsWith(".pdf")) {
+            actualFilename = actualFilename + ".pdf";
+        }
+
+        return actualFilename;
     }
 
     private String cleanJsonResponse(String response) {
