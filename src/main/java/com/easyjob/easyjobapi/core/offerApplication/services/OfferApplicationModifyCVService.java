@@ -66,7 +66,7 @@ public class OfferApplicationModifyCVService {
                     .orElseThrow(ApplierProfileNotFoundException::new);
             ApplierProfile applierProfile = applierProfileMapper.mapToDomain(applierProfileDAO, new CycleAvoidingMappingContext());
 
-            CV cv = CVBuilders.build(applierProfile, null, modifyRequest.name(), null);
+            CV cv = CVBuilders.build(applierProfile, modifyRequest.name(), null, null);
             CVDAO newCvDAO = cvMapper.mapToEntity(cv, new CycleAvoidingMappingContext());
             newCvDAO.setApplierProfile(applierProfileDAO);
             newCvDAO.setProcessStatus(ProcessStatusEnum.PENDING);
@@ -194,7 +194,6 @@ public class OfferApplicationModifyCVService {
             storageService.uploadFile(storageKey, "application/pdf", outputStream);
 
             cvDAO.setStorageKey(storageKey);
-            cvDAO.setFilename(storageKey);
             cvDAO.setProcessStatus(ProcessStatusEnum.COMPLETED);
             cvManager.saveToDatabase(cvDAO);
 
